@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -242,9 +243,18 @@ public class DataTool {
                 pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputPath), "utf-8")));
                 MovieIns mi;
                 Movie movie;
+                pw.println("name,type,country,releaseTime,directorImpactIndex,starImpactIndex,boxClass");
                 for (Map.Entry<String, Movie> entry : movieMap.entrySet()) {
                     movie = entry.getValue();
-                    
+                    mi = new MovieIns(movie.getName(), movie.getType());
+                    mi.setCountry(filterCountry(movie.getCountry()));
+                    mi.setReleaseTime(filterReleaseTime(movie.getReleaseTime()));
+                    mi.setDirectorImpactIndex(getIndex(movie.getDirectorList()));
+                    mi.setStarImpactIndex(getIndex(movie.getStarList()));
+                    mi.setBoxClass(filterBoxoffice(movie.getBoxoffice()));
+                    if (mi.getDirectorImpactIndex() != 0 && mi.getStarImpactIndex() != 0) {
+                        pw.println(mi);
+                    }
                 }
                 pw.close();
                 fos.close();
@@ -254,8 +264,69 @@ public class DataTool {
         }
     }
 
+    private int filterCountry(String country) {
+        if (country.equals("中国")) {
+            return 0;
+        } else if (country.equals("美国")) {
+            return 1;
+        } else if (country.contains("香港") || country.contains("台湾")) {
+            return 2;
+        } else {
+            return 3;
+        }
+    }
+
+    private int filterReleaseTime(String releaseTime) {
+        int year = Integer.parseInt(releaseTime.substring(0, 4));
+        switch (year) {
+            case 2013:
+                return 0;
+            case 2014:
+                return 1;
+            case 2015:
+                return 2;
+            case 2016:
+                return 3;
+            default:
+                return 0;
+        }
+    }
+
+    private double getIndex(List<Star> starList) {
+        double index = 0;
+        int count = 0;
+        for (Star star : starList) {
+            if (star.getImpactIndex() > 0) {
+                index += star.getImpactIndex();
+                count++;
+            }
+        }
+        if (count > 0) {
+            index /= count;
+        }
+        DecimalFormat df = new DecimalFormat("#.00");
+        return Double.parseDouble(df.format(index));
+    }
+
+    private int filterBoxoffice(double boxoffice) {
+        if (boxoffice > 100000) {
+            return 5;
+        } else if (boxoffice > 50000) {
+            return 4;
+        } else if (boxoffice > 10000) {
+            return 3;
+        } else if (boxoffice > 5000) {
+            return 2;
+        } else if (boxoffice > 1000) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
     public static void main(String[] args) {
         DataTool tool = new DataTool();
         tool.loadMovieInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_info4.csv");
+        tool.writeMovieInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_ins.csv");
     }
 }

@@ -15,7 +15,7 @@ public class Star implements Comparable<Star> {
     private int type;
     private String weiboUrl;
     private int fans;
-    private double impactIndex;
+    private double impactIndex = -1;
 
     public Star() {
 

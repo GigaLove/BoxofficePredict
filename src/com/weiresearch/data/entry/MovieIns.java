@@ -101,6 +101,11 @@ public class MovieIns {
     public void setBoxClass(int boxClass) {
         this.boxClass = boxClass;
     }
-    
+
+    @Override
+    public String toString() {
+        return name + "," + type + "," + country + "," + releaseTime + "," + 
+                directorImpactIndex + "," + starImpactIndex + "," + boxClass;
+    }
     
 }
