@@ -16,17 +16,19 @@ import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
 import weka.core.converters.CSVLoader;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Add;
 
 /**
  *
  * @author GigaLiu
  */
 public class MovieModel {
-    
+
     private Instances movieData;
     private Instances trainData;
     private Classifier cls;
-    
+
     public void loadCsv2Instance(String inputPath) {
         CSVLoader loader = new CSVLoader();
         try {
@@ -37,7 +39,7 @@ public class MovieModel {
             Logger.getLogger(MovieModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void loadArff2Instance(String inputPath) {
         ArffLoader loader = new ArffLoader();
         try {
@@ -46,11 +48,24 @@ public class MovieModel {
             trainData = new Instances(movieData);
             trainData.deleteAttributeAt(0);
             trainData.setClassIndex(trainData.numAttributes() - 1);
+            System.out.println(trainData);
         } catch (IOException ex) {
             Logger.getLogger(MovieModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
+//    private void addAttribute() {
+//        Add filter = new Add();
+//        filter.setAttributeIndex("last");
+//        filter.setAttributeName("series");
+//        try {
+//            filter.setInputFormat(trainData);
+//            trainData = Filter.useFilter(trainData, filter);
+//        } catch (Exception ex) {
+//            Logger.getLogger(MovieModel.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//    }
+
     public void trainModel() {
         cls = new J48();
         trainData.randomize(new Random(1));
@@ -65,7 +80,7 @@ public class MovieModel {
             Logger.getLogger(MovieModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public static void main(String[] args) {
         MovieModel mModel = new MovieModel();
 //        mModel.loadCsv2Instance("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_ins.csv");

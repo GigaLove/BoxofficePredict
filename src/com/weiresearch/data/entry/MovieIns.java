@@ -29,8 +29,16 @@ public class MovieIns {
      */
     private int releaseTime;
     
-    private double directorImpactIndex;
-    private double starImpactIndex;
+    private double dirBoxImpactIndex;
+    private double dirSocialImpactIndex;
+    private double starBoxImpactIndex;
+    private double starSocialImpactIndex;
+    
+    /**
+     * 0：非系列电影
+     * 1：系列电影
+     */
+    private int isSeries;
     /**
      * 0：千万以下
      * 1：1-5千万
@@ -78,22 +86,30 @@ public class MovieIns {
         this.releaseTime = releaseTime;
     }
 
-    public double getDirectorImpactIndex() {
-        return directorImpactIndex;
+    public double getDirBoxImpactIndex() {
+        return dirBoxImpactIndex;
     }
 
-    public void setDirectorImpactIndex(double directorImpactIndex) {
-        this.directorImpactIndex = directorImpactIndex;
+    public void setDirBoxImpactIndex(double dirBoxImpactIndex) {
+        this.dirBoxImpactIndex = dirBoxImpactIndex;
     }
 
-    public double getStarImpactIndex() {
-        return starImpactIndex;
+    public double getStarBoxImpactIndex() {
+        return starBoxImpactIndex;
     }
 
-    public void setStarImpactIndex(double starImpactIndex) {
-        this.starImpactIndex = starImpactIndex;
+    public void setStarBoxImpactIndex(double starBoxImpactIndex) {
+        this.starBoxImpactIndex = starBoxImpactIndex;
     }
 
+    public int getIsSeries() {
+        return isSeries;
+    }
+
+    public void setIsSeries(int isSeries) {
+        this.isSeries = isSeries;
+    }
+    
     public int getBoxClass() {
         return boxClass;
     }
@@ -105,7 +121,8 @@ public class MovieIns {
     @Override
     public String toString() {
         return name + "," + type + "," + country + "," + releaseTime + "," + 
-                directorImpactIndex + "," + starImpactIndex + "," + boxClass;
+                dirBoxImpactIndex + "," + starBoxImpactIndex + "," + isSeries + 
+                "," + boxClass;
     }
     
 }

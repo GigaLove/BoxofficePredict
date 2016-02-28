@@ -243,16 +243,16 @@ public class DataTool {
                 pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputPath), "utf-8")));
                 MovieIns mi;
                 Movie movie;
-                pw.println("name,type,country,releaseTime,directorImpactIndex,starImpactIndex,boxClass");
+                pw.println("name,type,country,releaseTime,directorImpactIndex,starImpactIndex,series,boxClass");
                 for (Map.Entry<String, Movie> entry : movieMap.entrySet()) {
                     movie = entry.getValue();
                     mi = new MovieIns(movie.getName(), movie.getType());
                     mi.setCountry(filterCountry(movie.getCountry()));
                     mi.setReleaseTime(filterReleaseTime(movie.getReleaseTime()));
-                    mi.setDirectorImpactIndex(getIndex(movie.getDirectorList()));
-                    mi.setStarImpactIndex(getIndex(movie.getStarList()));
+                    mi.setDirBoxImpactIndex(getStarBoxIndex(movie.getDirectorList()));
+                    mi.setStarBoxImpactIndex(getStarBoxIndex(movie.getStarList()));
                     mi.setBoxClass(filterBoxoffice(movie.getBoxoffice()));
-                    if (mi.getDirectorImpactIndex() != 0 && mi.getStarImpactIndex() != 0) {
+                    if (mi.getDirBoxImpactIndex() != 0 && mi.getStarBoxImpactIndex() != 0) {
                         pw.println(mi);
                     }
                 }
@@ -292,7 +292,7 @@ public class DataTool {
         }
     }
 
-    private double getIndex(List<Star> starList) {
+    private double getStarBoxIndex(List<Star> starList) {
         double index = 0;
         int count = 0;
         for (Star star : starList) {
@@ -306,6 +306,21 @@ public class DataTool {
         }
         DecimalFormat df = new DecimalFormat("#.00");
         return Double.parseDouble(df.format(index));
+    }
+
+    private int getStarSocialIndex(List<Star> starList) {
+        int index = 0;
+        for (Star star : starList) {
+            if (star.getFans() > 1000000) {
+                index = 1;
+            } else if (star.getFans() > 10000000) {
+                index = 2;
+            } else {
+                
+            }
+        }
+        
+        return index;
     }
 
     private int filterBoxoffice(double boxoffice) {
