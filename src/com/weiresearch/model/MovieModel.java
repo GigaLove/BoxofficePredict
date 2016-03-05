@@ -16,8 +16,6 @@ import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
 import weka.core.converters.CSVLoader;
-import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.Add;
 
 /**
  *
@@ -83,8 +81,8 @@ public class MovieModel {
 
     public static void main(String[] args) {
         MovieModel mModel = new MovieModel();
-//        mModel.loadCsv2Instance("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_ins.csv");
-        mModel.loadArff2Instance("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_data.arff");
-        mModel.trainModel();
+        mModel.loadCsv2Instance("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_ins.csv");
+//        mModel.loadArff2Instance("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_data.arff");
+//        mModel.trainModel();
     }
 }

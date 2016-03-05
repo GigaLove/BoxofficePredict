@@ -7,8 +7,10 @@ package com.weiresearch.data.tool;
 
 import com.weiresearch.data.entry.Movie;
 import com.weiresearch.data.entry.MovieIns;
+import com.weiresearch.data.entry.MovieTrailer;
 import com.weiresearch.data.entry.Star;
 import com.weiresearch.data.entry.StarImpact;
+import com.weiresearch.data.entry.TrailerView;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,6 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
@@ -34,6 +41,7 @@ public class DataTool {
     private Map<String, Movie> movieMap;
     private Map<String, StarImpact> starImpactMap;
     private Map<String, StarImpact> directorImpactMap;
+    private Map<Integer, MovieTrailer> trailerMap;
 
     public Map<String, Movie> getMovieMap() {
         return movieMap;
@@ -234,6 +242,75 @@ public class DataTool {
         }
     }
 
+    public void loadTrailerInfo(String inputPath) {
+        BufferedReader br;
+
+        try {
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(
+                    inputPath), "utf-8"));
+            String lineStr;
+            String[] lineValues;
+            trailerMap = new HashMap<>();
+            MovieTrailer movieTrailer;
+            int mid;
+            Pattern pattern = Pattern.compile("http://.*?\",(.*)");
+            Matcher matcher;
+            String statisticJson;
+            JSONArray trailerArray;
+            JSONObject trailerObject;
+
+            while ((lineStr = br.readLine()) != null) {
+                lineValues = lineStr.split(",");
+                mid = Integer.parseInt(lineValues[0]);
+                if (!trailerMap.containsKey(mid)) {
+                    movieTrailer = new MovieTrailer(mid,
+                            lineValues[1].substring(1, lineValues[1].length()));
+                    trailerMap.put(mid, movieTrailer);
+                }
+                movieTrailer = trailerMap.get(mid);
+
+                matcher = pattern.matcher(lineStr);
+                if (matcher.find()) {
+                    statisticJson = matcher.group(1);
+                    statisticJson = statisticJson.substring(1, statisticJson.length() - 1);
+                    try {
+                        if (statisticJson.charAt(0) == '[') {
+                            trailerArray = new JSONArray(statisticJson);
+                            for (int i = 0; i < trailerArray.length(); i++) {
+                                trailerObject = trailerArray.getJSONObject(i);
+                                movieTrailer.addTrailerView(trailerObject.getInt("views"),
+                                        trailerObject.getInt("willing"), trailerObject.getInt("positive"),
+                                        trailerObject.getInt("negetive"));
+                            }
+                        } else {
+                            trailerObject = new JSONObject(statisticJson);
+                            movieTrailer.addTrailerView(trailerObject.getInt("views"),
+                                    trailerObject.getInt("willing"), trailerObject.getInt("positive"),
+                                    trailerObject.getInt("negetive"));
+                        }
+                    } catch (JSONException ex) {
+                        Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+            br.close();
+            
+            for (Map.Entry<String, Movie> entry : movieMap.entrySet()) {
+                mid = entry.getValue().getId();
+                movieTrailer = trailerMap.get(mid);
+                if (movieTrailer != null) {
+                    movieTrailer.computeAvgTrailerInfo();
+                    entry.getValue().setTrailerView(movieTrailer.getAvgTrailerInfo());
+                } else {
+//                    entry.getValue().setTrailerView(new TrailerView());
+                }
+            }
+            
+        } catch (IOException ex) {
+            Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     public void writeMovieInfo(String outputPath) {
         FileOutputStream fos;
         PrintWriter pw;
@@ -243,15 +320,26 @@ public class DataTool {
                 pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputPath), "utf-8")));
                 MovieIns mi;
                 Movie movie;
-                pw.println("name,type,country,releaseTime,directorImpactIndex,starImpactIndex,series,boxClass");
+//                pw.println("name,type,country,releaseTime,dirBoxImpactIndex,"
+//                        + "starBoxImpactIndex,dirSocialImpactIndex,starSocialImpactIndex,series,boxClass");
+                pw.println("name,type,country,releaseTime,dirBoxImpactIndex,"
+                        + "starBoxImpactIndex,trailerVies,trailerPos,trailerNeg,boxClass");
                 for (Map.Entry<String, Movie> entry : movieMap.entrySet()) {
                     movie = entry.getValue();
+                    if (movie.getTrailerView() == null) {
+                        continue;
+                    }
                     mi = new MovieIns(movie.getName(), movie.getType());
                     mi.setCountry(filterCountry(movie.getCountry()));
                     mi.setReleaseTime(filterReleaseTime(movie.getReleaseTime()));
                     mi.setDirBoxImpactIndex(getStarBoxIndex(movie.getDirectorList()));
                     mi.setStarBoxImpactIndex(getStarBoxIndex(movie.getStarList()));
-                    mi.setBoxClass(filterBoxoffice(movie.getBoxoffice()));
+//                    mi.setDirSocialImpactIndex(getStarSocialIndex(movie.getDirectorList()));
+//                    mi.setStarSocialImpactIndex(getStarSocialIndex(movie.getStarList()));
+                    mi.setTrailerViews(movie.getTrailerView().getViews());
+                    mi.setTrailerPos(movie.getTrailerView().getPositive());
+                    mi.setTrailerNeg(movie.getTrailerView().getNegtive());
+                    mi.setBoxClass(filterBoxoffice2(movie.getBoxoffice()));
                     if (mi.getDirBoxImpactIndex() != 0 && mi.getStarBoxImpactIndex() != 0) {
                         pw.println(mi);
                     }
@@ -309,17 +397,27 @@ public class DataTool {
     }
 
     private int getStarSocialIndex(List<Star> starList) {
-        int index = 0;
+        int fansCount = 0;
+        int count = 0;
         for (Star star : starList) {
-            if (star.getFans() > 1000000) {
-                index = 1;
-            } else if (star.getFans() > 10000000) {
-                index = 2;
-            } else {
-                
+            fansCount += star.getFans();
+            if (star.getFans() > 0) {
+                count++;
             }
         }
-        
+
+        int index = -1;
+        if (count > 0) {
+            int avgFans = fansCount / count;
+            if (avgFans > 10000000) {
+                index = 2;
+            } else if (avgFans > 1000000) {
+                index = 1;
+            } else {
+                index = 0;
+            }
+        }
+
         return index;
     }
 
@@ -339,9 +437,23 @@ public class DataTool {
         }
     }
 
+    private int filterBoxoffice2(double boxoffice) {
+        if (boxoffice > 100000) {
+            return 3;
+        } else if (boxoffice > 10000) {
+            return 2;
+        } else if (boxoffice > 1000) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
     public static void main(String[] args) {
         DataTool tool = new DataTool();
         tool.loadMovieInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_info4.csv");
+        tool.loadTrailerInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_trailer.csv");
         tool.writeMovieInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_ins.csv");
+        
     }
 }

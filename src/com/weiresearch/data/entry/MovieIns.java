@@ -39,6 +39,9 @@ public class MovieIns {
      * 1：系列电影
      */
     private int isSeries;
+    private int trailerViews;
+    private int trailerPos;
+    private int trailerNeg;
     /**
      * 0：千万以下
      * 1：1-5千万
@@ -109,7 +112,23 @@ public class MovieIns {
     public void setIsSeries(int isSeries) {
         this.isSeries = isSeries;
     }
-    
+
+    public double getDirSocialImpactIndex() {
+        return dirSocialImpactIndex;
+    }
+
+    public void setDirSocialImpactIndex(double dirSocialImpactIndex) {
+        this.dirSocialImpactIndex = dirSocialImpactIndex;
+    }
+
+    public double getStarSocialImpactIndex() {
+        return starSocialImpactIndex;
+    }
+
+    public void setStarSocialImpactIndex(double starSocialImpactIndex) {
+        this.starSocialImpactIndex = starSocialImpactIndex;
+    }
+
     public int getBoxClass() {
         return boxClass;
     }
@@ -118,11 +137,41 @@ public class MovieIns {
         this.boxClass = boxClass;
     }
 
+    public int getTrailerViews() {
+        return trailerViews;
+    }
+
+    public void setTrailerViews(int trailerViews) {
+        this.trailerViews = trailerViews;
+    }
+
+    public int getTrailerPos() {
+        return trailerPos;
+    }
+
+    public void setTrailerPos(int trailerPos) {
+        this.trailerPos = trailerPos;
+    }
+
+    public int getTrailerNeg() {
+        return trailerNeg;
+    }
+
+    public void setTrailerNeg(int trailerNeg) {
+        this.trailerNeg = trailerNeg;
+    }
+    
     @Override
     public String toString() {
+//        return name + "," + type + "," + country + "," + releaseTime + "," + 
+//                dirBoxImpactIndex + "," + starBoxImpactIndex + ","  + 
+//                dirSocialImpactIndex + "," + starSocialImpactIndex + "," + isSeries + 
+//                "," + boxClass;
+//        return name + "," + type + "," + country + "," + releaseTime + "," + 
+//                dirBoxImpactIndex + "," + starBoxImpactIndex + "," + boxClass;
         return name + "," + type + "," + country + "," + releaseTime + "," + 
-                dirBoxImpactIndex + "," + starBoxImpactIndex + "," + isSeries + 
-                "," + boxClass;
+                dirBoxImpactIndex + "," + starBoxImpactIndex + "," + 
+                trailerViews + "," + trailerPos + "," + trailerNeg + "," + boxClass;
     }
     
 }

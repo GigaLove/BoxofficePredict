@@ -21,6 +21,7 @@ public class Movie {
     private String country;
     private List<Star> directorList;
     private List<Star> starList;
+    private TrailerView trailerView;
     private double boxoffice;
     
     public Movie() {
@@ -100,6 +101,15 @@ public class Movie {
     public void setBoxoffice(double boxoffice) {
         this.boxoffice = boxoffice;
     }
+
+    public TrailerView getTrailerView() {
+        return trailerView;
+    }
+
+    public void setTrailerView(TrailerView trailerView) {
+        this.trailerView = trailerView;
+    }
+    
     
     public void addDirector(Star director) {
         this.directorList.add(director);
