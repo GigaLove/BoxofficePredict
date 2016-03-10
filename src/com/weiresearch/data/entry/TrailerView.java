@@ -17,7 +17,10 @@ public class TrailerView {
     private int negtive;
     
     public TrailerView() {
-        
+        views = -1;
+        willing = -1;
+        positive = -1;
+        negtive = -1;
     }
 
     public TrailerView(int views, int willing, int positive, int negtive) {

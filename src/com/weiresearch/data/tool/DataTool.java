@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -194,7 +195,7 @@ public class DataTool {
     }
 
     /**
-     * 加载演员影响力信息
+     * 加载导演影响力信息
      *
      * @param inputPath
      */
@@ -235,13 +236,18 @@ public class DataTool {
                         director.setImpactIndex(si.getImpactIndex());
                     }
                 }
-                System.out.println(entry.getValue());
+//                System.out.println(entry.getValue());
             }
         } catch (IOException ex) {
             Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    /**
+     * 加载预告片观看量等信息
+     *
+     * @param inputPath
+     */
     public void loadTrailerInfo(String inputPath) {
         BufferedReader br;
 
@@ -274,27 +280,31 @@ public class DataTool {
                     statisticJson = matcher.group(1);
                     statisticJson = statisticJson.substring(1, statisticJson.length() - 1);
                     try {
+                        List<TrailerView> trailerList = new ArrayList<>();
                         if (statisticJson.charAt(0) == '[') {
                             trailerArray = new JSONArray(statisticJson);
                             for (int i = 0; i < trailerArray.length(); i++) {
                                 trailerObject = trailerArray.getJSONObject(i);
-                                movieTrailer.addTrailerView(trailerObject.getInt("views"),
+                                trailerList.add(new TrailerView(trailerObject.getInt("views"),
                                         trailerObject.getInt("willing"), trailerObject.getInt("positive"),
-                                        trailerObject.getInt("negetive"));
+                                        trailerObject.getInt("negetive")));
                             }
                         } else {
                             trailerObject = new JSONObject(statisticJson);
-                            movieTrailer.addTrailerView(trailerObject.getInt("views"),
+                            trailerList.add(new TrailerView(trailerObject.getInt("views"),
                                     trailerObject.getInt("willing"), trailerObject.getInt("positive"),
-                                    trailerObject.getInt("negetive"));
+                                    trailerObject.getInt("negetive")));
                         }
+                        movieTrailer.addTrailerList(trailerList);
                     } catch (JSONException ex) {
                         Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                } else {
+                    System.out.println(lineStr);
                 }
             }
             br.close();
-            
+
             for (Map.Entry<String, Movie> entry : movieMap.entrySet()) {
                 mid = entry.getValue().getId();
                 movieTrailer = trailerMap.get(mid);
@@ -302,15 +312,19 @@ public class DataTool {
                     movieTrailer.computeAvgTrailerInfo();
                     entry.getValue().setTrailerView(movieTrailer.getAvgTrailerInfo());
                 } else {
-//                    entry.getValue().setTrailerView(new TrailerView());
+                    entry.getValue().setTrailerView(new TrailerView());
                 }
             }
-            
+
         } catch (IOException ex) {
             Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
+    /**
+     * 将整理好的影片信息写入csv文件
+     * @param outputPath 
+     */
     public void writeMovieInfo(String outputPath) {
         FileOutputStream fos;
         PrintWriter pw;
@@ -323,7 +337,7 @@ public class DataTool {
 //                pw.println("name,type,country,releaseTime,dirBoxImpactIndex,"
 //                        + "starBoxImpactIndex,dirSocialImpactIndex,starSocialImpactIndex,series,boxClass");
                 pw.println("name,type,country,releaseTime,dirBoxImpactIndex,"
-                        + "starBoxImpactIndex,trailerVies,trailerPos,trailerNeg,boxClass");
+                        + "starBoxImpactIndex,trailerViews,trailerPos,trailerNeg,boxClass");
                 for (Map.Entry<String, Movie> entry : movieMap.entrySet()) {
                     movie = entry.getValue();
                     if (movie.getTrailerView() == null) {
@@ -454,6 +468,5 @@ public class DataTool {
         tool.loadMovieInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_info4.csv");
         tool.loadTrailerInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_trailer.csv");
         tool.writeMovieInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_ins.csv");
-        
     }
 }
