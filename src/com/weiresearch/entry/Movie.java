@@ -1,4 +1,4 @@
-package com.weiresearch.data.entry;
+package com.weiresearch.entry;
 
 import java.util.ArrayList;
 import java.util.List;

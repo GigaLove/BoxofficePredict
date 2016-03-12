@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.weiresearch.data.tool;
+package com.weiresearch.tool;
 
-import com.weiresearch.data.entry.Movie;
-import com.weiresearch.data.entry.MovieIns;
-import com.weiresearch.data.entry.MovieTrailer;
-import com.weiresearch.data.entry.Star;
-import com.weiresearch.data.entry.StarImpact;
-import com.weiresearch.data.entry.TrailerView;
+import com.weiresearch.entry.Movie;
+import com.weiresearch.entry.MovieIns;
+import com.weiresearch.entry.MovieTrailer;
+import com.weiresearch.entry.Star;
+import com.weiresearch.entry.StarImpact;
+import com.weiresearch.entry.TrailerView;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -169,7 +169,7 @@ public class DataTool {
                 if (impact != 0) {
                     impact *= 10000;
                     starName = values[1];
-                    si = new StarImpact(starName, Integer.parseInt(values[0]), impact, 1,
+                    si = new StarImpact(starName, Integer.parseInt(values[0]), impact, 2,
                             Integer.parseInt(values[3]), Integer.parseInt(values[4]),
                             Integer.parseInt(values[5]), Integer.parseInt(values[6]));
                     if (!starImpactMap.containsKey(starName)) {
@@ -218,7 +218,7 @@ public class DataTool {
                 if (impact != 0) {
                     impact *= 10000;
                     directorName = values[1];
-                    si = new StarImpact(directorName, Integer.parseInt(values[0]), impact, 8,
+                    si = new StarImpact(directorName, Integer.parseInt(values[0]), impact, 1,
                             (int) (Long.parseLong(values[3]) / 10000), Integer.parseInt(values[7]),
                             (int) (Long.parseLong(values[4]) / 10000), (int) (Long.parseLong(values[5]) / 10000));
                     if (!directorImpactMap.containsKey(directorName)) {

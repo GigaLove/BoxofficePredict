@@ -3,7 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.weiresearch.data.entry;
+package com.weiresearch.entry;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 /**
  *
@@ -15,9 +20,21 @@ public class StarImpact extends Star {
     private int mainWorkCount;
     private int highestGrossing;
     private int lowestGrossing;
+    private JSONArray worksJson;
     
     public StarImpact() {
         
+    }
+    
+    public StarImpact(long id, String name, int type, String worksJson) {
+        super(id, name, type);
+        try {
+            this.worksJson = new JSONArray(worksJson);
+        } catch (JSONException ex) {
+            this.worksJson = null;
+            System.out.println(this);
+            Logger.getLogger(StarImpact.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public StarImpact(String name, int starRank, double impactIndex, int type,
@@ -70,4 +87,17 @@ public class StarImpact extends Star {
         this.lowestGrossing = lowestGrossing;
     }
 
+    public JSONArray getWorksJson() {
+        return worksJson;
+    }
+
+    public void setWorksJson(JSONArray worksJson) {
+        this.worksJson = worksJson;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+    
 }

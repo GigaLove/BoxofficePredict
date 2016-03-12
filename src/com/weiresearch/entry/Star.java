@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.weiresearch.data.entry;
+package com.weiresearch.entry;
 
 /**
  *
@@ -11,6 +11,7 @@ package com.weiresearch.data.entry;
  */
 public class Star implements Comparable<Star> {
 
+    private long id;
     private String name;
     private int type;
     private String weiboUrl;
@@ -25,6 +26,12 @@ public class Star implements Comparable<Star> {
         this.name = name;
     }
 
+    public Star(long id, String name, int type) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+    }
+
     public Star(String name, double impactIndex, int type) {
         this.name = name;
         this.impactIndex = impactIndex;
@@ -36,6 +43,14 @@ public class Star implements Comparable<Star> {
         this.type = type;
         this.weiboUrl = weiboUrl;
         this.fans = fans;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -80,17 +95,23 @@ public class Star implements Comparable<Star> {
 
     @Override
     public String toString() {
-        return "{" + name + "," + type + "," + weiboUrl + "," + fans + "," + impactIndex + "}";
+        return "{" + id + "," + name + "," + type + "," + impactIndex + "}";
     }
 
     @Override
     public int compareTo(Star o) {
-        if (this.impactIndex > o.impactIndex) {
+        if (this.type > o.type) {
             return 1;
-        } else if (this.impactIndex < o.impactIndex) {
+        } else if (this.type < o.type) {
             return -1;
         } else {
-            return 0;
+            if (this.impactIndex > o.impactIndex) {
+                return -1;
+            } else if (this.impactIndex < o.impactIndex) {
+                return 1;
+            } else {
+                return 0;
+            }
         }
     }
 
