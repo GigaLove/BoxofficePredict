@@ -6,7 +6,7 @@
 package com.weiresearch.tool;
 
 import com.weiresearch.entry.Movie;
-import com.weiresearch.entry.MovieIns;
+import com.weiresearch.entry.MovieInfo;
 import com.weiresearch.entry.MovieTrailer;
 import com.weiresearch.entry.Star;
 import com.weiresearch.entry.StarImpact;
@@ -332,7 +332,7 @@ public class DataTool {
             if (movieMap != null) {
                 fos = new FileOutputStream(new File(outputPath));
                 pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputPath), "utf-8")));
-                MovieIns mi;
+                MovieInfo mi;
                 Movie movie;
 //                pw.println("name,type,country,releaseTime,dirBoxImpactIndex,"
 //                        + "starBoxImpactIndex,dirSocialImpactIndex,starSocialImpactIndex,series,boxClass");
@@ -343,7 +343,7 @@ public class DataTool {
                     if (movie.getTrailerView() == null) {
                         continue;
                     }
-                    mi = new MovieIns(movie.getName(), movie.getType());
+                    mi = new MovieInfo(movie.getName(), movie.getType());
                     mi.setCountry(filterCountry(movie.getCountry()));
                     mi.setReleaseTime(filterReleaseTime(movie.getReleaseTime()));
                     mi.setDirBoxImpactIndex(getStarBoxIndex(movie.getDirectorList()));

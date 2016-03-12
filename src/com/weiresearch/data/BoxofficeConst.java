@@ -9,7 +9,7 @@ package com.weiresearch.data;
  *
  * @author GigaLiu
  */
-public class BoxofficeData {
+public class BoxofficeConst {
     
     /**
      * 2011-2015历年上映影片数量

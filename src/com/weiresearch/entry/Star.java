@@ -14,8 +14,7 @@ public class Star implements Comparable<Star> {
     private long id;
     private String name;
     private int type;
-    private String weiboUrl;
-    private int fans;
+    private StarSocial starSocial;
     private double impactIndex = -1;
 
     public Star() {
@@ -41,8 +40,7 @@ public class Star implements Comparable<Star> {
     public Star(String name, int type, String weiboUrl, int fans) {
         this.name = name;
         this.type = type;
-        this.weiboUrl = weiboUrl;
-        this.fans = fans;
+        this.starSocial = new StarSocial(weiboUrl, fans);
     }
 
     public long getId() {
@@ -69,28 +67,35 @@ public class Star implements Comparable<Star> {
         this.type = type;
     }
 
-    public String getWeiboUrl() {
-        return weiboUrl;
-    }
-
-    public void setWeiboUrl(String weiboUrl) {
-        this.weiboUrl = weiboUrl;
-    }
-
-    public int getFans() {
-        return fans;
-    }
-
-    public void setFans(int fans) {
-        this.fans = fans;
-    }
-
     public double getImpactIndex() {
         return impactIndex;
     }
 
     public void setImpactIndex(double impactIndex) {
         this.impactIndex = impactIndex;
+    }
+    
+    public void setWeiboUrl(String url) {
+        if (this.starSocial == null) {
+            this.starSocial = new StarSocial(url);
+        } else {
+            this.starSocial.setWeiboUrl(url);
+        }
+    }
+    
+    public void setFans(int fans) {
+        if (this.starSocial == null) {
+            this.starSocial = new StarSocial(fans);
+        } else {
+            this.starSocial.setFans(fans);
+        }
+    }
+    
+    public int getFans() {
+        if (this.starSocial != null) {
+            return this.starSocial.getFans();
+        }
+        return 0;
     }
 
     @Override

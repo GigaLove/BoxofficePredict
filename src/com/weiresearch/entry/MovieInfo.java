@@ -9,7 +9,8 @@ package com.weiresearch.entry;
  *
  * @author GigaLiu
  */
-public class MovieIns {
+public class MovieInfo {
+    private long id;
     private String name;
     private String type;
     
@@ -52,7 +53,7 @@ public class MovieIns {
      */
     private int boxClass;
     
-    public MovieIns(String name, String type) {
+    public MovieInfo(String name, String type) {
         this.name = name;
         this.type = type;
     }

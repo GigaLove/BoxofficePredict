@@ -5,7 +5,7 @@
  */
 package com.weiresearch.model;
 
-import com.weiresearch.data.BoxofficeData;
+import com.weiresearch.data.BoxofficeConst;
 import com.weiresearch.entry.StarImpact;
 import com.weiresearch.tool.DataTool;
 import java.io.BufferedReader;
@@ -31,7 +31,11 @@ public class StarImpactModel {
 
     private Map<Long, StarImpact> starMap;
 
-    public Map<Long, StarImpact> getStarInfo(String starPath) {
+    public Map<Long, StarImpact> getStarMap() {
+        return starMap;
+    }
+
+    public void loadStarInfo(String starPath) {
         BufferedReader br;
         try {
             br = new BufferedReader(new InputStreamReader(new FileInputStream(
@@ -63,11 +67,33 @@ public class StarImpactModel {
         } catch (IOException ex) {
             Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        return starMap;
     }
 
-    public double getBoxImpactIndex(JSONArray works) {
+    /**
+     * 计算影响力指数入口
+     */
+    public void compute() {
+        StarImpact si;
+        double impactIndex;
+        for (Map.Entry<Long, StarImpact> entry : starMap.entrySet()) {
+            si = entry.getValue();
+            impactIndex = computeIndexByJson(si.getWorksJson());
+            si.setImpactIndex(impactIndex);
+        }
+//        List<StarImpact> impactList = new ArrayList<>(starMap.values());
+//        Collections.sort(impactList);
+//        for (StarImpact impact : impactList) {
+//            System.out.println(impact);
+//        }
+    }
+
+    /**
+     * 解析艺人作品json
+     *
+     * @param works
+     * @return
+     */
+    public double computeIndexByJson(JSONArray works) {
         if (works == null) {
             return 0f;
         }
@@ -106,6 +132,13 @@ public class StarImpactModel {
             return 0;
         }
     }
+    
+    public double getImpacIndex(long starId) {
+        if (starMap.containsKey(starId)) {
+            return starMap.get(starId).getImpactIndex();
+        }
+        return -1;
+    }
 
     /**
      * 基于主创影视作品的影响力计算
@@ -118,22 +151,11 @@ public class StarImpactModel {
             return 0f;
         }
 
-        int year;
-        List<Integer> boxofficeList;
         double impactIndex = 0.0f;
         for (Map.Entry<Integer, List<Integer>> entry : boxofficeMap.entrySet()) {
 //            impactIndex += computeIndexByBoxRatio(entry.getKey(), entry.getValue());
             impactIndex += computeIndexByCustomRatio(entry.getKey(), entry.getValue());
-            year = entry.getKey();
-            if (year > 2010 && year < 2016) {
-                boxofficeList = entry.getValue();
-                int yearSum = 0;
-                for (Integer box : boxofficeList) {
-                    yearSum += box;
-                }
-                impactIndex += BoxofficeData.BOXOFFICE_RATIO[year - 2011] * yearSum;
-
-            }
+//            impactIndex += computeIndexByAvgBox(entry.getKey(), entry.getValue());
         }
         return impactIndex;
     }
@@ -151,7 +173,7 @@ public class StarImpactModel {
             for (Integer box : boxofficeList) {
                 yearSum += box;
             }
-            return BoxofficeData.BOXOFFICE_RATIO[year - 2011] * yearSum;
+            return BoxofficeConst.BOXOFFICE_RATIO[year - 2011] * yearSum;
         }
         return 0f;
     }
@@ -182,24 +204,27 @@ public class StarImpactModel {
         }
     }
 
-    public void compute() {
-        StarImpact si;
-        double impactIndex;
-        for (Map.Entry<Long, StarImpact> entry : starMap.entrySet()) {
-            si = entry.getValue();
-            impactIndex = getBoxImpactIndex(si.getWorksJson());
-            si.setImpactIndex(impactIndex);
+    /**
+     * 基于年度平均票房计算艺人影响力
+     *
+     * @param year
+     * @param boxofficeList
+     * @return
+     */
+    private double computeIndexByAvgBox(int year, List<Integer> boxofficeList) {
+        if (year > 2010 && year < 2016) {
+            int yearSum = 0;
+            for (Integer box : boxofficeList) {
+                yearSum += box;
+            }
+            return BoxofficeConst.BOXOFFICE_RATIO[year - 2011] * (yearSum / BoxofficeConst.YEAR_AVG_BOXOFFICE[year - 2011]);
         }
-        List<StarImpact> impactList = new ArrayList<>(starMap.values());
-        Collections.sort(impactList);
-        for (StarImpact impact : impactList) {
-            System.out.println(impact);
-        }
+        return 0f;
     }
 
     public static void main(String[] args) {
         StarImpactModel model = new StarImpactModel();
-        model.getStarInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\EN DATA\\star_info_copy2.txt");
+        model.loadStarInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\EN DATA\\star_info_copy2.txt");
         model.compute();
     }
 }
