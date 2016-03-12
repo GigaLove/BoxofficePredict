@@ -73,7 +73,7 @@ public class MovieModel {
                         movie.setStarOneBoxIndex(this.starModel.getImpacIndex(Long.parseLong(values[10])));
                         movie.setStarTwoId(Long.parseLong(values[12]));
                         movie.setStarTwoBoxIndex(this.starModel.getImpacIndex(Long.parseLong(values[12])));
-                        movie.setBoxClass(filterBoxoffice(values[14]));
+                        movie.setBoxClass(filterBoxoffice2(values[14]));
                         movieMap.put(movieId, movie);
                         System.out.println(movie);
                     }
@@ -207,9 +207,9 @@ public class MovieModel {
 
     public static void main(String[] args) {
         MovieModel model = new MovieModel();
-        model.compute("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\EN DATA\\EN2011-2015票房.csv",
-                "C:\\Users\\GigaLiu\\Desktop\\影视数据全\\EN DATA\\star_info_copy2.txt");
-        model.writeMovieInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\EN DATA\\en_train_data.csv");
+        model.compute("data/2011-2015-boxoffice.csv",
+                "data/star-works.txt");
+        model.writeMovieInfo("data/train_data_4.csv");
     }
 
 }

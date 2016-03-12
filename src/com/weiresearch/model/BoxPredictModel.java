@@ -126,8 +126,8 @@ public class BoxPredictModel {
     public static void main(String[] args) {
         BoxPredictModel mModel = new BoxPredictModel();
 //        mModel.convertCsv2Arff("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_ins.csv");
-        mModel.convertCsv2Arff("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\EN DATA\\en_train_data.csv",
-                "C:\\Users\\GigaLiu\\Desktop\\影视数据全\\EN DATA\\train.arff");
+        mModel.convertCsv2Arff("data/train_data_4.csv",
+                "data/train_4.arff");
 //        mModel.loadArff2Instance("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_data.arff");
         mModel.trainModel();
     }
