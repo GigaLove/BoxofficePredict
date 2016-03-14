@@ -57,7 +57,13 @@ public class BoxPredictModel {
             Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
+    /**
+     * 数值属性转换为名词属性
+     * @param data
+     * @param index
+     * @return 
+     */
     private Instances num2Nominal(Instances data, int[] index) {
         NumericToNominal filter = new NumericToNominal();
         try {
@@ -69,7 +75,14 @@ public class BoxPredictModel {
             return null;
         }
     }
-
+    
+    /**
+     * 数据归一化
+     * @param data
+     * @param scale
+     * @param translation
+     * @return 
+     */
     private Instances normalize(Instances data, double scale, double translation) {
         Normalize filter = new Normalize();
         filter.setScale(scale);

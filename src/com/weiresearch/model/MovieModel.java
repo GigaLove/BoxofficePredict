@@ -71,6 +71,8 @@ public class MovieModel {
                         movie.setDirBoxIndex(this.starModel.getImpacIndex(Long.parseLong(values[8])));
                         movie.setStarOneId(Long.parseLong(values[10]));
                         movie.setStarOneBoxIndex(this.starModel.getImpacIndex(Long.parseLong(values[10])));
+//                        movie.setStarOneBoxIndex(computeStarIndex(Long.parseLong(values[10]), 
+//                                Long.parseLong(values[12])));
                         movie.setStarTwoId(Long.parseLong(values[12]));
                         movie.setStarTwoBoxIndex(this.starModel.getImpacIndex(Long.parseLong(values[12])));
                         movie.setBoxClass(filterBoxoffice2(values[14]));
@@ -86,9 +88,9 @@ public class MovieModel {
         }
         return movieMap;
     }
-    
+
     public void writeMovieInfo(String outputPath) {
-                FileOutputStream fos;
+        FileOutputStream fos;
         PrintWriter pw;
         try {
             if (movieMap != null) {
@@ -107,6 +109,11 @@ public class MovieModel {
         } catch (IOException ex) {
             Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public double computeStarIndex(long starOneId, long starTwoId) {
+        return (starModel.getImpacIndex(starOneId) + 
+                starModel.getImpacIndex(starTwoId)) / 2;
     }
 
     public static int filterReleaseYear(String releaseYear) {
