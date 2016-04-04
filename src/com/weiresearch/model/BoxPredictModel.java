@@ -27,8 +27,9 @@ import weka.filters.unsupervised.attribute.NumericToNominal;
  */
 public class BoxPredictModel {
 
-    private Instances movieData;
     private Instances trainData;
+    private Instances testID;
+    private Instances testData;
     private Classifier cls;
 
     public void convertCsv2Arff(String inputPath, String outputPath) {
@@ -45,9 +46,6 @@ public class BoxPredictModel {
                 data = normalize(data, 1.0, 0.0);
                 if (data != null) {
                     // 存储数据集到arff文件
-                    movieData = data;
-                    trainData = new Instances(data);
-                    trainData.deleteAttributeAt(0);
                     saver.setInstances(data);
                     saver.setFile(new File(outputPath));
                     saver.writeBatch();
@@ -57,12 +55,13 @@ public class BoxPredictModel {
             Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     /**
      * 数值属性转换为名词属性
+     *
      * @param data
      * @param index
-     * @return 
+     * @return
      */
     private Instances num2Nominal(Instances data, int[] index) {
         NumericToNominal filter = new NumericToNominal();
@@ -75,13 +74,14 @@ public class BoxPredictModel {
             return null;
         }
     }
-    
+
     /**
      * 数据归一化
+     *
      * @param data
      * @param scale
      * @param translation
-     * @return 
+     * @return
      */
     private Instances normalize(Instances data, double scale, double translation) {
         Normalize filter = new Normalize();
@@ -96,17 +96,33 @@ public class BoxPredictModel {
         }
     }
 
-    public void loadArff2Instance(String inputPath) {
-        ArffLoader loader = new ArffLoader();
-        try {
-            loader.setSource(new File(inputPath));
-            movieData = loader.getDataSet();
-            trainData = new Instances(movieData);
+    private Instances loadArff(String inputPath) {
+        if (inputPath != null || new File(inputPath).isFile()) {
+            ArffLoader loader = new ArffLoader();
+            try {
+                loader.setSource(new File(inputPath));
+                return loader.getDataSet();
+            } catch (IOException ex) {
+                Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return null;
+    }
+
+    public void loadTrainData(String inputPath) {
+        this.trainData = loadArff(inputPath);
+        if (trainData != null) {
             trainData.deleteAttributeAt(0);
             trainData.setClassIndex(trainData.numAttributes() - 1);
-            System.out.println(trainData);
-        } catch (IOException ex) {
-            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void loadTestData(String inputPath) {
+        this.testID = loadArff(inputPath);
+        if (testID != null) {
+            testData = new Instances(testID);
+            testData.deleteAttributeAt(0);
+            testData.setClassIndex(trainData.numAttributes() - 1);
         }
     }
 
@@ -136,12 +152,28 @@ public class BoxPredictModel {
         }
     }
 
+    public void evaluation() {
+        Evaluation eval;
+        try {
+            eval = new Evaluation(trainData);
+            eval.evaluateModel(cls, testData);
+            System.out.println(eval.toSummaryString());//输出总结信息
+            System.out.println(eval.toClassDetailsString());//输出分类详细信息
+            System.out.println(eval.toMatrixString());//输出分类的混淆矩阵
+        } catch (Exception ex) {
+            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     public static void main(String[] args) {
         BoxPredictModel mModel = new BoxPredictModel();
-//        mModel.convertCsv2Arff("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_ins.csv");
-        mModel.convertCsv2Arff("data/train_data_4.csv",
-                "data/train_4.arff");
-//        mModel.loadArff2Instance("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_data.arff");
+//        mModel.convertCsv2Arff("data/train_data_4.csv",
+//                "data/train_4.arff");
+//        mModel.convertCsv2Arff("data/test_data_4.csv",
+//                "data/test_4.arff");
+        mModel.loadTrainData("data/train_4.arff");
         mModel.trainModel();
+        mModel.loadTestData("data/test_4.arff");
+        mModel.evaluation();
     }
 }

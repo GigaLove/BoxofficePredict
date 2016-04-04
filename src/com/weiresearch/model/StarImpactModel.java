@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -152,9 +153,9 @@ public class StarImpactModel {
 
         double impactIndex = 0.0f;
         for (Map.Entry<Integer, List<Integer>> entry : boxofficeMap.entrySet()) {
-            impactIndex += computeIndexByBoxRatio(entry.getKey(), entry.getValue());
+//            impactIndex += computeIndexByBoxRatio(entry.getKey(), entry.getValue());
 //            impactIndex += computeIndexByCustomRatio(entry.getKey(), entry.getValue());
-//            impactIndex += computeIndexByAvgBox(entry.getKey(), entry.getValue());
+            impactIndex += computeIndexByAvgBox(entry.getKey(), entry.getValue());
         }
         return impactIndex;
     }
@@ -224,6 +225,7 @@ public class StarImpactModel {
     public static void main(String[] args) {
         StarImpactModel model = new StarImpactModel();
         model.loadStarInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\EN DATA\\star_info_copy2.txt");
+//        model.loadStarInfo("C:\\Users\\GigaLiu\\Desktop\\star_spider_2016.csv");
         model.compute();
     }
 }

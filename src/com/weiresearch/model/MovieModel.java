@@ -214,9 +214,12 @@ public class MovieModel {
 
     public static void main(String[] args) {
         MovieModel model = new MovieModel();
-        model.compute("data/2011-2015-boxoffice.csv",
-                "data/star-works.txt");
-        model.writeMovieInfo("data/train_data_4.csv");
+//        model.compute("data/2011-2015-boxoffice.csv",
+//                "data/star-works.txt");
+//        model.writeMovieInfo("data/train_data_4.csv");
+        model.compute("data/EN2016票房.csv",
+                "data/star_works_2.txt");
+        model.writeMovieInfo("data/test_data_4.csv");
     }
 
 }
