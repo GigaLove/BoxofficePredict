@@ -3,10 +3,10 @@
 @attribute id {592975,596554,610219,616582,617763,618023,618156,618763,626153,626346,627347,627938,628035,628132,628676,629547,629996,630033,630691,630695,631033,631280,631748,633345,637664,637759,637761,637766,637810,637947,638630,638755,639351,639519,639743,639810,640012,640206,640866,641154,641976,641998,642563,642644,642939,642966,643407,643570}
 @attribute type {0,1,2,3,4,6,7,8}
 @attribute country {0,1,2,3}
-@attribute releaseYear {5}
-@attribute period {0,2}
+@attribute releaseYear {0,1,2,3,4,5}
+@attribute period {0,1,2}
 @attribute is3D {0,1}
-@attribute isIMAX {0}
+@attribute isIMAX {0,1}
 @attribute dirBoxIndex numeric
 @attribute starOneBoxIndex numeric
 @attribute starTwoBoxIndex numeric

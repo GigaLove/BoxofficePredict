@@ -62,7 +62,7 @@ public class MovieModel {
                     movieId = Long.parseLong(values[0]);
                     if (!movieMap.containsKey(movieId)) {
                         movie = new EnMovie(movieId, values[1]);
-                        movie.setReleaseYear(filterReleaseYear(values[3]));
+                        movie.setReleaseYear(Integer.parseInt(values[3]));
                         movie.setPeriod(filterPeriod(values[4]));
                         movie.setType(filterType(values[5]));
                         filterFormat(values[6], movie);
@@ -159,14 +159,14 @@ public class MovieModel {
     }
 
     public static int filterPeriod(String releaseTime) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
         String year = releaseTime.substring(0, 4);
         try {
             Date date = sdf.parse(releaseTime);
-            Date sumBegin = sdf.parse(year + "-07-15");
-            Date sumEnd = sdf.parse(year + "-08-31");
-            Date winBegin = sdf.parse(year + "-01-01");
-            Date winEnd = sdf.parse(year + "-02-28");
+            Date sumBegin = sdf.parse(year + "/07/15");
+            Date sumEnd = sdf.parse(year + "/08/31");
+            Date winBegin = sdf.parse(year + "/01/01");
+            Date winEnd = sdf.parse(year + "/02/28");
             Calendar cal = Calendar.getInstance();
             cal.setTime(date);
             if (date.after(sumBegin) && date.before(sumEnd)) {
@@ -214,12 +214,12 @@ public class MovieModel {
 
     public static void main(String[] args) {
         MovieModel model = new MovieModel();
-//        model.compute("data/2011-2015-boxoffice.csv",
-//                "data/star-works.txt");
-//        model.writeMovieInfo("data/train_data_4.csv");
-        model.compute("data/EN2016票房.csv",
+        model.compute("data/2011-2016-boxoffice.csv",
                 "data/star_works_2.txt");
-        model.writeMovieInfo("data/test_data_4.csv");
+        model.writeMovieInfo("data/train_data_4_2016.csv");
+//        model.compute("data/EN2016票房.csv",
+//                "data/star_works_2.txt");
+//        model.writeMovieInfo("data/test_data_4.csv");
     }
 
 }

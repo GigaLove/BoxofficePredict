@@ -7,12 +7,16 @@ package com.weiresearch.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+import weka.classifiers.functions.SMO;
+import weka.classifiers.meta.CVParameterSelection;
 import weka.classifiers.trees.J48;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
 import weka.core.converters.ArffSaver;
@@ -109,6 +113,32 @@ public class BoxPredictModel {
         return null;
     }
 
+    /**
+     * 加载所有数据，并划分训练和测试集
+     *
+     * @param inputPath
+     */
+    public void loadAllData(String inputPath) {
+        Instances allData = loadArff(inputPath);
+        allData.deleteAttributeAt(0);
+        allData.setClassIndex(allData.numAttributes() - 1);
+        spiltData(allData);
+    }
+
+    private void spiltData(Instances allData) {
+        trainData = new Instances(allData, 0);
+        testData = new Instances(allData, 0);
+
+        for (int i = 0; i < allData.numInstances(); i++) {
+            int year = Integer.parseInt(allData.instance(i).stringValue(2));
+            if (year == 2016) {
+                testData.add(new Instance(allData.instance(i)));
+            } else {
+                trainData.add(new Instance(allData.instance(i)));
+            }
+        }
+    }
+
     public void loadTrainData(String inputPath) {
         this.trainData = loadArff(inputPath);
         if (trainData != null) {
@@ -137,22 +167,37 @@ public class BoxPredictModel {
 //            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 //    }
-    public void trainModel() {
-        cls = new J48();
+    public void trainModelByJ48() {
+        J48 treeCls = new J48();
         trainData.randomize(new Random(1));
         try {
-            cls.buildClassifier(trainData);
+//            treeCls.setOptions(new String[]{"C", "0.1"});
+            treeCls.setConfidenceFactor(0.1f);
+            treeCls.buildClassifier(trainData);
             Evaluation eval = new Evaluation(trainData);
-            eval.crossValidateModel(cls, trainData, 10, new Random(1));
+            eval.crossValidateModel(treeCls, trainData, 10, new Random(1));
             System.out.println(eval.toSummaryString());//输出总结信息
             System.out.println(eval.toClassDetailsString());//输出分类详细信息
             System.out.println(eval.toMatrixString());//输出分类的混淆矩阵
+            this.cls = treeCls;
         } catch (Exception ex) {
             Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public void evaluation() {
+    public void j48ParaSelect() {
+        CVParameterSelection selection = new CVParameterSelection();
+        selection.setClassifier(cls);
+        try {
+            selection.addCVParameter("C 0.1 0.5 5.0");
+            selection.buildClassifier(trainData);
+            System.out.println(Arrays.toString(selection.getBestClassifierOptions()));
+        } catch (Exception ex) {
+            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void evaluateByTestData() {
         Evaluation eval;
         try {
             eval = new Evaluation(trainData);
@@ -167,13 +212,18 @@ public class BoxPredictModel {
 
     public static void main(String[] args) {
         BoxPredictModel mModel = new BoxPredictModel();
-//        mModel.convertCsv2Arff("data/train_data_4.csv",
+//        mModel.convertCsv2Arff("data/train_data_4_2016.csv",
 //                "data/train_4.arff");
 //        mModel.convertCsv2Arff("data/test_data_4.csv",
 //                "data/test_4.arff");
-        mModel.loadTrainData("data/train_4.arff");
-        mModel.trainModel();
-        mModel.loadTestData("data/test_4.arff");
-        mModel.evaluation();
+//        mModel.loadTrainData("data/train_4.arff");
+//        mModel.trainModelByJ48();
+//        mModel.loadTestData("data/test_4.arff");
+//        mModel.evaluateByTestData();
+
+        mModel.loadAllData("data/train_4.arff");
+        mModel.trainModelByJ48();
+//        mModel.j48ParaSelect();
+        mModel.evaluateByTestData();
     }
 }

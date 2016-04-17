@@ -10,8 +10,11 @@ import com.weiresearch.entry.StarImpact;
 import com.weiresearch.tool.DataTool;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -80,11 +83,11 @@ public class StarImpactModel {
             impactIndex = computeIndexByJson(si.getWorksJson());
             si.setImpactIndex(impactIndex);
         }
-//        List<StarImpact> impactList = new ArrayList<>(starMap.values());
-//        Collections.sort(impactList);
-//        for (StarImpact impact : impactList) {
-//            System.out.println(impact);
-//        }
+        List<StarImpact> impactList = new ArrayList<>(starMap.values());
+        Collections.sort(impactList);
+        for (StarImpact impact : impactList) {
+            System.out.println(impact);
+        }
     }
 
     /**
@@ -132,7 +135,7 @@ public class StarImpactModel {
             return 0;
         }
     }
-    
+
     public double getImpacIndex(long starId) {
         if (starMap.containsKey(starId)) {
             return starMap.get(starId).getImpactIndex();
@@ -155,7 +158,8 @@ public class StarImpactModel {
         for (Map.Entry<Integer, List<Integer>> entry : boxofficeMap.entrySet()) {
 //            impactIndex += computeIndexByBoxRatio(entry.getKey(), entry.getValue());
 //            impactIndex += computeIndexByCustomRatio(entry.getKey(), entry.getValue());
-            impactIndex += computeIndexByAvgBox(entry.getKey(), entry.getValue());
+//            impactIndex += computeIndexByAvgBox(entry.getKey(), entry.getValue());
+            impactIndex += computeIndexByAvgBoxRatio(entry.getKey(), entry.getValue());
         }
         return impactIndex;
     }
@@ -173,7 +177,7 @@ public class StarImpactModel {
             for (Integer box : boxofficeList) {
                 yearSum += box;
             }
-            return BoxofficeConst.BOXOFFICE_RATIO[year - 2011] * yearSum;
+            return BoxofficeConst.YEAR_BOXOFFICE_RATIO[year - 2011] * yearSum;
         }
         return 0f;
     }
@@ -217,15 +221,65 @@ public class StarImpactModel {
             for (Integer box : boxofficeList) {
                 yearSum += box;
             }
-            return BoxofficeConst.BOXOFFICE_RATIO[year - 2011] * (yearSum / BoxofficeConst.YEAR_AVG_BOXOFFICE[year - 2011]);
+            return BoxofficeConst.YEAR_BOXOFFICE_RATIO[year - 2011] * (yearSum / BoxofficeConst.YEAR_AVG_BOXOFFICE[year - 2011]);
         }
         return 0f;
     }
 
+    /**
+     * 基于年度平均票房比率计算艺人影响力
+     *
+     * @param year
+     * @param boxofficeList
+     * @return
+     */
+    private double computeIndexByAvgBoxRatio(int year, List<Integer> boxofficeList) {
+        if (year > 2010 && year < 2016) {
+            int yearSum = 0;
+            for (Integer box : boxofficeList) {
+                yearSum += box;
+            }
+            return BoxofficeConst.YEAR_AVG_BOXOFFICE_RATIO[year - 2011] * yearSum;
+        }
+        return 0f;
+    }
+
+    public void writeStarImpact(String outputPath) {
+        if (this.starMap != null) {
+            List<StarImpact> impactList = new ArrayList<>(starMap.values());
+            Collections.sort(impactList);
+            
+            FileOutputStream fos = null;
+            PrintWriter pw = null;
+            try {
+                fos = new FileOutputStream(outputPath);
+                pw = new PrintWriter(fos);
+                for (StarImpact impact : impactList) {
+                    pw.println(impact);
+                }
+                pw.flush();
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(StarImpactModel.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                if (pw != null) {
+                    pw.close();
+                }
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (IOException ex) {
+                        Logger.getLogger(StarImpactModel.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }
+    }
+
     public static void main(String[] args) {
         StarImpactModel model = new StarImpactModel();
-        model.loadStarInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\EN DATA\\star_info_copy2.txt");
+        model.loadStarInfo("data/star_works_2.txt");
 //        model.loadStarInfo("C:\\Users\\GigaLiu\\Desktop\\star_spider_2016.csv");
         model.compute();
+        model.writeStarImpact("data/star_impact.txt");
     }
 }
