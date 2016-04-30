@@ -5,6 +5,9 @@
  */
 package com.weiresearch.film.pojo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author GigaLiu
@@ -38,11 +41,27 @@ public class EnMoviePojo {
     private double dirBoxIndex = -1;
     private double starOneBoxIndex = -1;
     private double starTwoBoxIndex = -1;
+    
+    /**
+     * 主创指数
+     */
+    private List<Double> chiefIndexs;
+    private double videoChiefIndex = -1;
+    
+    /**
+     * 营销事件
+     */
+    private int marketCount;
 
     /**
      * 0：非系列电影 1：系列电影
      */
     private int isSeries;
+    
+    /**
+     * 0：非ip电影 1：ip电影
+     */
+    private int isIp;
     /**
      * 0：千万以下 1：1-5千万 2：5千万-1亿 3：1亿-5亿 4：5亿-10亿 5:10亿以上
      */
@@ -51,6 +70,7 @@ public class EnMoviePojo {
     public EnMoviePojo(long id, String name) {
         this.id = id;
         this.name = name;
+        this.chiefIndexs = new ArrayList<>();
     }
 
     public long getId() {
@@ -173,6 +193,42 @@ public class EnMoviePojo {
         this.isSeries = isSeries;
     }
 
+    public List<Double> getChiefIndexs() {
+        return chiefIndexs;
+    }
+    
+    public void addChiefIndex(double impactIndex) {
+        this.chiefIndexs.add(impactIndex);
+    }
+
+    public void setChiefIndexs(List<Double> chiefIndexs) {
+        this.chiefIndexs = chiefIndexs;
+    }
+    
+    public double getVideoChiefIndex() {
+        return videoChiefIndex;
+    }
+
+    public void setVideoChiefIndex(double videoChiefIndex) {
+        this.videoChiefIndex = videoChiefIndex;
+    }
+
+    public int getIsIp() {
+        return isIp;
+    }
+
+    public void setIsIp(int isIp) {
+        this.isIp = isIp;
+    }
+
+    public int getMarketCount() {
+        return marketCount;
+    }
+
+    public void setMarketCount(int marketCount) {
+        this.marketCount = marketCount;
+    }
+    
     public int getBoxClass() {
         return boxClass;
     }

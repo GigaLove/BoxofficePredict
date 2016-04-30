@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,11 +47,11 @@ public class MovieModel {
         starModel.compute();
     }
 
-    private Map<Long, EnMoviePojo> loadMovieInfo(String starPath) {
+    private Map<Long, EnMoviePojo> loadMovieInfo(String moviePath) {
         BufferedReader br;
         try {
             br = new BufferedReader(new InputStreamReader(new FileInputStream(
-                    starPath), "GBK"));
+                    moviePath), "GBK"));
             movieMap = new HashMap<>();
             String lineStr;
             String[] values;
@@ -89,6 +90,71 @@ public class MovieModel {
         return movieMap;
     }
 
+    public void loadEnMovieInfo(String inputPath) {
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(
+                    inputPath), "utf-8"));
+            movieMap = new HashMap<>();
+            String lineStr;
+            String[] values;
+            EnMoviePojo movie;
+            while ((lineStr = br.readLine()) != null) {
+                if (!lineStr.startsWith("id")) {
+                    try {
+                        values = lineStr.split(",");
+                        int rank = Integer.parseInt(values[12]);
+                        if (rank < 3) {
+                            long movieId = Long.parseLong(values[0]);
+                            if (!movieMap.containsKey(movieId)) {
+                                movie = new EnMoviePojo(movieId, values[1]);
+                                movie.setType(filterType(values[2]));
+                                filterFormat(values[3], movie);
+                                movie.setReleaseYear(Integer.parseInt(values[4].substring(0, 4)));
+                                movie.setPeriod(filterPeriod(values[4]));
+                                movie.setCountry(filterCountry(values[5]));
+                                movie.setIsSeries(Integer.parseInt(values[6]));
+                                movie.setIsIp(Integer.parseInt(values[7]));
+                                movie.setMarketCount(Integer.parseInt(values[8]));
+                                movie.setBoxClass(filterBoxoffice2(values[9]));
+                                movieMap.put(movieId, movie);
+                            }
+                            movie = movieMap.get(movieId);
+                            movie.addChiefIndex(Double.parseDouble(values[14]));
+                        }
+                    } catch (NumberFormatException ex) {
+                        Logger.getLogger(DataTool.class.getName()).log(Level.INFO, null, ex);
+                    }
+                }
+            }
+
+            List<Double> impactIndexs;
+            double impactValue = 0;
+            int count = 0;
+            for (Map.Entry<Long, EnMoviePojo> entry : movieMap.entrySet()) {
+                impactIndexs = entry.getValue().getChiefIndexs();
+                for (Double val : impactIndexs) {
+                    if (val != null && val != 0) {
+                        impactValue += val;
+                        count++;
+                    }
+                }
+                entry.getValue().setVideoChiefIndex(impactValue);
+            }
+
+        } catch (IOException ex) {
+            Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(MovieModel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
     public void writeMovieInfo(String outputPath) {
         FileOutputStream fos;
         PrintWriter pw;
@@ -96,12 +162,12 @@ public class MovieModel {
             if (movieMap != null) {
                 fos = new FileOutputStream(new File(outputPath));
                 pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputPath), "utf-8")));
-                EnMoviePojo mi;
+//                pw.println("id,type,country,releaseYear,period,"
+//                        + "is3D,isIMAX,dirBoxIndex,starOneBoxIndex,starTwoBoxIndex,boxClass");
                 pw.println("id,type,country,releaseYear,period,"
-                        + "is3D,isIMAX,dirBoxIndex,starOneBoxIndex,starTwoBoxIndex,boxClass");
+                        + "is3D,isIMAX,chiefIndex,boxClass");
                 for (Map.Entry<Long, EnMoviePojo> entry : movieMap.entrySet()) {
-                    mi = entry.getValue();
-                    pw.println(mi);
+                    pw.println(entry.getValue());
                 }
                 pw.close();
                 fos.close();
@@ -112,8 +178,8 @@ public class MovieModel {
     }
 
     public double computeStarIndex(long starOneId, long starTwoId) {
-        return (starModel.getImpacIndex(starOneId) + 
-                starModel.getImpacIndex(starTwoId)) / 2;
+        return (starModel.getImpacIndex(starOneId)
+                + starModel.getImpacIndex(starTwoId)) / 2;
     }
 
     public static int filterReleaseYear(String releaseYear) {

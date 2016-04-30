@@ -10,9 +10,9 @@ package com.weiresearch.film.util;
  * @author GigaLiu
  */
 public class BoxofficeConst {
-    
+
     public static final int HIGHEST_BOXOFFICE = 20000;
-    
+
     /**
      * 2011-2015历年上映影片数量
      */
@@ -58,7 +58,10 @@ public class BoxofficeConst {
             YEAR_AVG_BOXOFFICE_RATIO[i] = (float) (YEAR_AVG_BOXOFFICE[i]) / sum;
         }
     }
-    
+
+    /**
+     * 导演、主演、编剧、制片权重
+     */
     public static final double[] ROLE_WEIGHT = {0.8, 1, 0.2, 0.1};
 
 }

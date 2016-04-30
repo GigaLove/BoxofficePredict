@@ -139,7 +139,9 @@ public class StarIndexUpdateServlet extends HttpServlet {
         @Override
         public void run() {
             // query all star works between minYear and maxYear
-            List<Object[]> starWorks = starWorkFacade.getStarWorkByReleaseYear(minYear, maxYear);
+            Logger.getLogger(StarIndexUpdateServlet.class.getName()).log(Level.INFO,
+                    "Start update all star impact index");
+            List<Object[]> starWorks = starWorkFacade.getAllStarWorkByReleaseYear(minYear, maxYear);
             Map<Integer, List<StarYearRoleBoxPojo>> yearRoleMap = new HashMap<>();
             List<StarYearRoleBoxPojo> yearRoleBoxs;
             int starId;
@@ -148,7 +150,7 @@ public class StarIndexUpdateServlet extends HttpServlet {
                 int role = (int) attrs[1];
                 int releaseYear = (int) attrs[2];
                 int workCount = (int) (long) attrs[3];
-                int boxoffice = ((BigDecimal)attrs[4]).intValue();
+                int boxoffice = ((BigDecimal) attrs[4]).intValue();
                 if (!yearRoleMap.containsKey(starId)) {
                     yearRoleBoxs = new ArrayList<>();
                     yearRoleMap.put(starId, yearRoleBoxs);
@@ -169,6 +171,8 @@ public class StarIndexUpdateServlet extends HttpServlet {
                     starFacade.edit(star);
                 }
             }
+            Logger.getLogger(StarIndexUpdateServlet.class.getName()).log(Level.INFO,
+                    "All star impact index recompute completely");
         }
 
     }

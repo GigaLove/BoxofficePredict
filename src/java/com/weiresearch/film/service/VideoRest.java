@@ -5,37 +5,35 @@
  */
 package com.weiresearch.film.service;
 
-import com.weiresearch.film.entity.Star;
+import com.weiresearch.film.entity.Video;
 import com.weiresearch.film.facade.impl.EnStarFacade;
-import com.weiresearch.film.facade.impl.EnStarWorkFacade;
+import com.weiresearch.film.facade.impl.EnVideoFacade;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 
 /**
  *
  * @author GigaLiu
  */
 @Stateless
-@Path("starIndex")
-public class StarIndexRest {
+@Path("/video")
+public class VideoRest {
 
     @EJB
-    private EnStarWorkFacade starWorkFacade;
+    private EnVideoFacade _videoFacade;
     @EJB
-    private EnStarFacade starFacade;
+    private EnStarFacade _starFacade;
     
     @GET
     @Path("{id}")
-    @Produces({"application/json"})
-    public Star find(@PathParam("id") Integer id) {
-        return starFacade.find(id);
+    @Produces({MediaType.APPLICATION_JSON})
+    public Video find(@PathParam("id") Integer id) {
+        return _videoFacade.find(id);
     }
 
 }

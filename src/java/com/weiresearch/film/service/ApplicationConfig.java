@@ -10,7 +10,7 @@ import javax.ws.rs.core.Application;
 
 /**
  *
- * @author xiazy
+ * @author GigaLiu
  */
 @javax.ws.rs.ApplicationPath("filmapi")
 public class ApplicationConfig extends Application {
@@ -29,7 +29,10 @@ public class ApplicationConfig extends Application {
      * If required, comment out calling this method in getClasses().
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
-        resources.add(com.weiresearch.film.service.StarIndexRest.class);
+        resources.add(com.weiresearch.film.service.StarRest.class);
+        resources.add(com.weiresearch.film.service.VideoRest.class);
     }
+    
+    
     
 }
