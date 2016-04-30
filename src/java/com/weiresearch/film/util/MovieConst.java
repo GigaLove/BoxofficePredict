@@ -13,6 +13,22 @@ public class MovieConst {
 
     public static final int YEAR_SPAN = 5;
     public static final int ROLE_COUNT = 4;
-    public static final String[] MOVIE_TYPE = {"爱情", "动作", "喜剧", "剧情",
-        "科幻", "魔幻", "动画", "惊悚", "战争", "纪实", "歌舞"};
+    public static final int FORMAT_3D = 1;
+    public static final int FORMAT_IMAX = 1;
+
+    public static final String[][] MOVIE_TYPE = {
+        {"爱情"},
+        {"动作"},
+        {"喜剧"},
+        {"剧情"},
+        {"科幻"},
+        {"魔幻", "奇幻"},
+        {"动画", "儿童"},
+        {"惊悚", "恐怖"},
+        {"战争"},
+        {"纪实"},
+        {"歌舞", "音乐"},
+        {"纪录片"},
+        {"灾难"}
+    };
 }

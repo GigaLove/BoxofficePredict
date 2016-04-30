@@ -34,20 +34,20 @@ public class EnMoviePojo {
     private int period;
     private int is3D;
     private int isIMAX;
-    
+
     private long dirId;
     private long starOneId;
     private long starTwoId;
     private double dirBoxIndex = -1;
     private double starOneBoxIndex = -1;
     private double starTwoBoxIndex = -1;
-    
+
     /**
      * 主创指数
      */
     private List<Double> chiefIndexs;
     private double videoChiefIndex = -1;
-    
+
     /**
      * 营销事件
      */
@@ -57,7 +57,7 @@ public class EnMoviePojo {
      * 0：非系列电影 1：系列电影
      */
     private int isSeries;
-    
+
     /**
      * 0：非ip电影 1：ip电影
      */
@@ -196,7 +196,7 @@ public class EnMoviePojo {
     public List<Double> getChiefIndexs() {
         return chiefIndexs;
     }
-    
+
     public void addChiefIndex(double impactIndex) {
         this.chiefIndexs.add(impactIndex);
     }
@@ -204,7 +204,7 @@ public class EnMoviePojo {
     public void setChiefIndexs(List<Double> chiefIndexs) {
         this.chiefIndexs = chiefIndexs;
     }
-    
+
     public double getVideoChiefIndex() {
         return videoChiefIndex;
     }
@@ -228,7 +228,7 @@ public class EnMoviePojo {
     public void setMarketCount(int marketCount) {
         this.marketCount = marketCount;
     }
-    
+
     public int getBoxClass() {
         return boxClass;
     }
@@ -239,9 +239,12 @@ public class EnMoviePojo {
 
     @Override
     public String toString() {
-        return id + "," + type + "," + country + "," + releaseYear 
-                + "," + period + "," + is3D + "," + isIMAX + "," + dirBoxIndex 
-                + "," + starOneBoxIndex + "," + starTwoBoxIndex + "," + boxClass;
+//        return id + "," + type + "," + country + "," + releaseYear 
+//                + "," + period + "," + is3D + "," + isIMAX + "," + dirBoxIndex 
+//                + "," + starOneBoxIndex + "," + starTwoBoxIndex + "," + boxClass;
+        return id + "," + type + "," + country + "," + releaseYear
+                + "," + period + "," + is3D + "," + isIMAX + "," + isIp + "," + isSeries + "," + marketCount
+                + "," + chiefIndexs + "," + boxClass;
     }
-    
+
 }

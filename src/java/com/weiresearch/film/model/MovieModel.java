@@ -120,7 +120,7 @@ public class MovieModel {
                                 movieMap.put(movieId, movie);
                             }
                             movie = movieMap.get(movieId);
-                            movie.addChiefIndex(Double.parseDouble(values[14]));
+                            movie.addChiefIndex(this.optDouble(values[14]));
                         }
                     } catch (NumberFormatException ex) {
                         Logger.getLogger(DataTool.class.getName()).log(Level.INFO, null, ex);
@@ -128,18 +128,17 @@ public class MovieModel {
                 }
             }
 
-            List<Double> impactIndexs;
-            double impactValue = 0;
-            int count = 0;
             for (Map.Entry<Long, EnMoviePojo> entry : movieMap.entrySet()) {
-                impactIndexs = entry.getValue().getChiefIndexs();
+                List<Double> impactIndexs = entry.getValue().getChiefIndexs();
+                int count = 0;
+                double impactValue = 0;
                 for (Double val : impactIndexs) {
                     if (val != null && val != 0) {
                         impactValue += val;
                         count++;
                     }
                 }
-                entry.getValue().setVideoChiefIndex(impactValue);
+                entry.getValue().setVideoChiefIndex(count > 0 ? (impactValue / count) : 0);
             }
 
         } catch (IOException ex) {
@@ -165,7 +164,7 @@ public class MovieModel {
 //                pw.println("id,type,country,releaseYear,period,"
 //                        + "is3D,isIMAX,dirBoxIndex,starOneBoxIndex,starTwoBoxIndex,boxClass");
                 pw.println("id,type,country,releaseYear,period,"
-                        + "is3D,isIMAX,chiefIndex,boxClass");
+                        + "is3D,isIMAX,isIp,isSeries,marketCount,chiefIndex,boxClass");
                 for (Map.Entry<Long, EnMoviePojo> entry : movieMap.entrySet()) {
                     pw.println(entry.getValue());
                 }
@@ -174,6 +173,15 @@ public class MovieModel {
             }
         } catch (IOException ex) {
             Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private double optDouble(String val) {
+        try {
+            double value = Double.parseDouble(val);
+            return value;
+        } catch (NumberFormatException ex) {
+            return 0;
         }
     }
 
@@ -188,64 +196,97 @@ public class MovieModel {
     }
 
     /**
-     * 0：爱情 1：动作 2：喜剧 3：剧情 4：科幻 5：魔幻 6：动画 7：惊悚 8：战争 9：纪实 10：歌舞
+     * 0：爱情 1：动作 2：喜剧 3：剧情 4：科幻 5：魔幻 6：动画 7：惊悚 8：战争 9：纪实 10：歌舞 11：儿童 12：纪录片
      *
-     * @param type
+     * @param typeStr
      * @return
      */
-    public static int filterType(String type) {
-        type = type.substring(0, 2);
+    public static int filterType(String typeStr) {
+        if (typeStr != null && !typeStr.trim().isEmpty()) {
+            String[] types = typeStr.trim().split("/");
 
-        for (int i = 0; i < MovieConst.MOVIE_TYPE.length; i++) {
-            if (type.equals(MovieConst.MOVIE_TYPE[i])) {
-                return i;
+            for (String type : types) {
+                for (int i = 0; i < MovieConst.MOVIE_TYPE.length; i++) {
+                    for (String str : MovieConst.MOVIE_TYPE[i]) {
+                        if (type.equals(str)) {
+                            return i;
+                        }
+                    }
+                }
+            }
+        }
+        return 3;
+    }
+
+    public static void filterFormat(String format, EnMoviePojo movie) {
+        if (format == null || movie == null) {
+            return;
+        }
+
+        if (format.contains("3D")) {
+            movie.setIs3D(MovieConst.FORMAT_3D);
+        }
+        if (format.contains("IMAX")) {
+            movie.setIsIMAX(MovieConst.FORMAT_IMAX);
+        }
+    }
+
+    /**
+     * 影视作品国家过滤器
+     *
+     * @param countryStr
+     * @return
+     */
+    public static int filterCountry(String countryStr) {
+        if (countryStr != null && !countryStr.trim().isEmpty()) {
+            String[] countrys = countryStr.trim().split("/");
+            for (String country : countrys) {
+                if (country.equals("中国")) {
+                    return 0;
+                } else if (country.equals("美国")) {
+                    return 1;
+                } else if (country.equals("中国香港")) {
+                    return 2;
+                } else if (countryStr.equals("中国台湾")) {
+                    return 3;
+                } else {
+                    return 4;
+                }
             }
         }
         return 0;
     }
 
-    public static void filterFormat(String format, EnMoviePojo movie) {
-        if (format.contains("3D")) {
-            movie.setIs3D(1);
-        } else if (format.contains("IMAX")) {
-            movie.setIsIMAX(1);
-        }
-    }
-
-    public static int filterCountry(String country) {
-        if (country.equals("中国")) {
-            return 0;
-        } else if (country.contains("美国")) {
-            return 1;
-        } else if (country.contains("香港") || country.contains("台湾")) {
-            return 2;
-        } else {
-            return 3;
-        }
-    }
-
     public static int filterPeriod(String releaseTime) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-        String year = releaseTime.substring(0, 4);
-        try {
-            Date date = sdf.parse(releaseTime);
-            Date sumBegin = sdf.parse(year + "/07/15");
-            Date sumEnd = sdf.parse(year + "/08/31");
-            Date winBegin = sdf.parse(year + "/01/01");
-            Date winEnd = sdf.parse(year + "/02/28");
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(date);
-            if (date.after(sumBegin) && date.before(sumEnd)) {
-                return 1;
-            } else if (date.after(winBegin) && date.before(winEnd)) {
-                return 2;
-            } else {
+        if (releaseTime != null && !releaseTime.trim().isEmpty()) {
+            releaseTime = releaseTime.trim();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+            String year = releaseTime.substring(0, 4);
+            try {
+                Date date = sdf.parse(releaseTime);
+                Date sumBegin = sdf.parse(year + "/07/15");
+                Date sumEnd = sdf.parse(year + "/08/31");
+                Date chrisBegin = sdf.parse(year + "/12/20");
+                Date chrisEnd = sdf.parse(year + "/12/31");
+                Date winBegin = sdf.parse(year + "/01/01");
+                Date winEnd = sdf.parse(year + "/02/28");
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                if (date.after(sumBegin) && date.before(sumEnd) || date.equals(sumBegin) || date.equals(sumEnd)) {
+                    return 1;
+                } else if (date.after(winBegin) && date.before(winEnd) || date.equals(winBegin) || date.equals(winEnd)) {
+                    return 2;
+                } else if (date.after(chrisBegin) && date.before(chrisEnd) || date.equals(chrisBegin) || date.equals(chrisEnd)) {
+                    return 2;
+                } else {
+                    return 0;
+                }
+            } catch (ParseException ex) {
+                Logger.getLogger(MovieModel.class.getName()).log(Level.SEVERE, null, ex);
                 return 0;
             }
-        } catch (ParseException ex) {
-            Logger.getLogger(MovieModel.class.getName()).log(Level.SEVERE, null, ex);
-            return 0;
         }
+        return 0;
     }
 
     public static int filterBoxoffice(String box) {

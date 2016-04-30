@@ -28,7 +28,7 @@ public class VideoRest {
     private EnVideoFacade _videoFacade;
     @EJB
     private EnStarFacade _starFacade;
-    
+
     @GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_JSON})
@@ -36,4 +36,14 @@ public class VideoRest {
         return _videoFacade.find(id);
     }
 
+    @GET
+    @Path("/predict/{id}")
+    @Produces({MediaType.TEXT_PLAIN})
+    public double getPredictBoxoffice(@PathParam("id") Integer videoId) {
+        Video videoInfo = _videoFacade.find(videoId);
+        if (videoInfo != null) {
+
+        }
+        return 0;
+    }
 }
