@@ -26,9 +26,15 @@ public class MovieConst {
         {"动画", "儿童"},
         {"惊悚", "恐怖"},
         {"战争"},
-        {"纪实"},
+        {"纪录片", "纪实", "传记", "革命"},
         {"歌舞", "音乐"},
-        {"纪录片"},
         {"灾难"}
     };
+    public static final int MOVIE_TYPE_OTHER = MOVIE_TYPE.length;
+
+    public static final int AREA_CHINA = 0;
+    public static final int AREA_USA = 1;
+    public static final int AREA_HANGKONG = 2;
+    public static final int AREA_TAIWAN = 3;
+    public static final int AREA_OTHER = 4;
 }

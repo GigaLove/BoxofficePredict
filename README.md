@@ -4,8 +4,14 @@
 
 [TOC]
 
-## FilmService
-> 核心影视票房预测逻辑实现以及基于jersey框架的web service接口暴露。
+## 项目说明
+1. FilmService：核心影视票房预测逻辑实现以及基于jersey框架的web service接口暴露。
+2. FilmStorage：基于JPA及EJB Entity Bean实现的数据持久层，映射数据库表单
 
-## FilmStorage
-> 基于JPA及EJB Entity Bean实现的数据持久层，映射数据库表单
+---
+
+## 进展情况
+### 2016-05-06
+1. 基于时间权重以及角色权重来计算主创指数，每部影片的主创团队针对主创指数计算算数平均数，不区分导演与演员，效果不佳，下一步的考虑：
+	* 影视作品主创指数计算时，区分导演和演员
+	* 考虑引入历史作品来计算主创指数

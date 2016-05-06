@@ -13,7 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
-import weka.classifiers.functions.SMO;
 import weka.classifiers.meta.CVParameterSelection;
 import weka.classifiers.trees.J48;
 import weka.core.Instance;
@@ -22,6 +21,7 @@ import weka.core.converters.ArffLoader;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
 import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Add;
 import weka.filters.unsupervised.attribute.Normalize;
 import weka.filters.unsupervised.attribute.NumericToNominal;
 
@@ -32,10 +32,16 @@ import weka.filters.unsupervised.attribute.NumericToNominal;
 public class BoxPredictModel {
 
     private Instances trainData;
-    private Instances testID;
+    private Instances testOrigin;
     private Instances testData;
     private Classifier cls;
 
+    /**
+     * version 0.1 将csv文件转换成arff文件
+     *
+     * @param inputPath
+     * @param outputPath
+     */
     public void convertCsv2Arff(String inputPath, String outputPath) {
         CSVLoader loader = new CSVLoader();
         ArffSaver saver = new ArffSaver();
@@ -44,6 +50,36 @@ public class BoxPredictModel {
             Instances data = loader.getDataSet();
             // 规范化数据集
             int[] toNomIndex = {0, 1, 2, 3, 4, 5, 6, data.numAttributes() - 1};
+            data = num2Nominal(data, toNomIndex);
+            if (data != null) {
+                data.setClassIndex(data.numAttributes() - 1);
+                data = normalize(data, 1.0, 0.0);
+                if (data != null) {
+                    // 存储数据集到arff文件
+                    saver.setInstances(data);
+                    saver.setFile(new File(outputPath));
+                    saver.writeBatch();
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * version 0.2 将csv文件转换成arff文件
+     *
+     * @param inputPath
+     * @param outputPath
+     */
+    public void convertCsv2Arff2(String inputPath, String outputPath) {
+        CSVLoader loader = new CSVLoader();
+        ArffSaver saver = new ArffSaver();
+        try {
+            loader.setSource(new File(inputPath));
+            Instances data = loader.getDataSet();
+            // 规范化数据集，规范的数据维度与version0.1不同
+            int[] toNomIndex = {0, 1, 2, 3, 4, 5, 6, 7, 8, data.numAttributes() - 1};
             data = num2Nominal(data, toNomIndex);
             if (data != null) {
                 data.setClassIndex(data.numAttributes() - 1);
@@ -148,25 +184,26 @@ public class BoxPredictModel {
     }
 
     public void loadTestData(String inputPath) {
-        this.testID = loadArff(inputPath);
-        if (testID != null) {
-            testData = new Instances(testID);
+        this.testOrigin = loadArff(inputPath);
+        if (testOrigin != null) {
+            testData = new Instances(testOrigin);
             testData.deleteAttributeAt(0);
             testData.setClassIndex(trainData.numAttributes() - 1);
         }
     }
 
-//    private void addAttribute() {
-//        Add filter = new Add();
-//        filter.setAttributeIndex("last");
-//        filter.setAttributeName("series");
-//        try {
-//            filter.setInputFormat(trainData);
-//            trainData = Filter.useFilter(trainData, filter);
-//        } catch (Exception ex) {
-//            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//    }
+    public void addAttribute() {
+        Add filter = new Add();
+        filter.setAttributeIndex("last");
+        filter.setAttributeName("series");
+        try {
+            filter.setInputFormat(trainData);
+            trainData = Filter.useFilter(trainData, filter);
+        } catch (Exception ex) {
+            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     public void trainModelByJ48() {
         J48 treeCls = new J48();
         trainData.randomize(new Random(1));
@@ -197,6 +234,9 @@ public class BoxPredictModel {
         }
     }
 
+    /**
+     * 基于测试数据进行模型评估
+     */
     public void evaluateByTestData() {
         Evaluation eval;
         try {
@@ -221,9 +261,11 @@ public class BoxPredictModel {
 //        mModel.loadTestData("data/test_4.arff");
 //        mModel.evaluateByTestData();
 
-        mModel.loadAllData("data/train_4.arff");
-        mModel.trainModelByJ48();
+//        mModel.loadAllData("data/train_4.arff");
+//        mModel.trainModelByJ48();
 //        mModel.j48ParaSelect();
-        mModel.evaluateByTestData();
+//        mModel.evaluateByTestData();
+        mModel.convertCsv2Arff2("E:/Workspaces/NetBeansProject/Film/data/en_filter_20160506.csv",
+                "E:/Workspaces/NetBeansProject/Film/data/en_filter_train6_20160506.arff");
     }
 }

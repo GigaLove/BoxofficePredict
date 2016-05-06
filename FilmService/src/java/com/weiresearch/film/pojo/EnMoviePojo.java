@@ -244,7 +244,7 @@ public class EnMoviePojo {
 //                + "," + starOneBoxIndex + "," + starTwoBoxIndex + "," + boxClass;
         return id + "," + type + "," + country + "," + releaseYear
                 + "," + period + "," + is3D + "," + isIMAX + "," + isIp + "," + isSeries + "," + marketCount
-                + "," + chiefIndexs + "," + boxClass;
+                + "," + videoChiefIndex + "," + boxClass;
     }
 
 }
