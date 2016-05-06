@@ -11,6 +11,9 @@ package com.weiresearch.film.util;
  */
 public class MatrixTool {
 
+    public static int VECTOR_ROW = 0;
+    public static int VECTOR_COLUMN = 1;
+
     public static double[][] multiply(double[][] left, double[][] right) {
         if (left == null || right == null || left[0].length != right.length) {
             return null;

@@ -53,17 +53,10 @@ public class StarIndexUpdateServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         ResPOJO res = new ResPOJO();
-        String min = request.getParameter("minYear");
-        String max = request.getParameter("maxYear");
 
-        int maxYear = Calendar.getInstance().get(Calendar.YEAR) - 1;
-        int minYear = maxYear - MovieConst.YEAR_SPAN + 1;
         try {
-            if (min != null && max != null) {
-                maxYear = Integer.parseInt(max);
-                minYear = Integer.parseInt(min);
-            }
-            Thread indexThread = new StarIndexThread(starWorkFacade, starFacade, minYear, maxYear);
+            int method = Integer.parseInt(request.getParameter("method"));
+            Thread indexThread = new StarIndexThread(starWorkFacade, starFacade, method);
             indexThread.start();
             res.setCode(0);
             res.setMsg("Star index update task commit successfully");
@@ -126,14 +119,12 @@ public class StarIndexUpdateServlet extends HttpServlet {
 
         private final EnStarWorkFacade starWorkFacade;
         private final EnStarFacade starFacade;
-        private final int minYear;
-        private final int maxYear;
+        private final int method;
 
-        public StarIndexThread(EnStarWorkFacade starWorkFacade, EnStarFacade starFacade, int minYear, int maxYear) {
+        public StarIndexThread(EnStarWorkFacade starWorkFacade, EnStarFacade starFacade, int method) {
             this.starWorkFacade = starWorkFacade;
             this.starFacade = starFacade;
-            this.minYear = minYear;
-            this.maxYear = maxYear;
+            this.method = method;
         }
 
         @Override
@@ -141,6 +132,23 @@ public class StarIndexUpdateServlet extends HttpServlet {
             // query all star works between minYear and maxYear
             Logger.getLogger(StarIndexUpdateServlet.class.getName()).log(Level.INFO,
                     "Start update all star impact index");
+            if (this.method == 0) {
+                computeIndexByRecentYears();
+            } else if (this.method == 1) {
+                computeIndexByYear();
+            } else {
+            }
+            Logger.getLogger(StarIndexUpdateServlet.class.getName()).log(Level.INFO,
+                    "All star impact index recompute completely");
+        }
+
+        /**
+         * 基于近5年的影视作品信息计算影人的主创指数
+         */
+        private void computeIndexByRecentYears() {
+            int maxYear = Calendar.getInstance().get(Calendar.YEAR) - 1;
+            int minYear = Calendar.getInstance().get(Calendar.YEAR) - MovieConst.YEAR_SPAN;
+
             List<Object[]> starWorks = starWorkFacade.getAllStarWorkByReleaseYear(minYear, maxYear);
             Map<Integer, List<StarYearRoleBoxPojo>> yearRoleMap = new HashMap<>();
             List<StarYearRoleBoxPojo> yearRoleBoxs;
@@ -171,8 +179,46 @@ public class StarIndexUpdateServlet extends HttpServlet {
                     starFacade.edit(star);
                 }
             }
-            Logger.getLogger(StarIndexUpdateServlet.class.getName()).log(Level.INFO,
-                    "All star impact index recompute completely");
+
+        }
+
+        /**
+         * 基于近8年的影视作品信息计算影人的主创指数
+         */
+        private void computeIndexByYear() {
+            int maxYear = Calendar.getInstance().get(Calendar.YEAR) - 1;
+            int minYear = 2008;
+
+            List<Object[]> starWorks = starWorkFacade.getAllStarWorkAvgInfoByReleaseYear(minYear, maxYear);
+            Map<Integer, List<StarYearRoleBoxPojo>> yearRoleMap = new HashMap<>();
+            List<StarYearRoleBoxPojo> yearRoleBoxs;
+            int starId;
+            for (Object[] attrs : starWorks) {
+                starId = (int) attrs[0];
+                int role = (int) attrs[1];
+                int releaseYear = (int) attrs[2];
+                int workCount = (int) (long) attrs[3];
+                double boxoffice = ((BigDecimal) attrs[4]).doubleValue();
+                if (!yearRoleMap.containsKey(starId)) {
+                    yearRoleBoxs = new ArrayList<>();
+                    yearRoleMap.put(starId, yearRoleBoxs);
+                }
+                yearRoleBoxs = yearRoleMap.get(starId);
+                yearRoleBoxs.add(new StarYearRoleBoxPojo(starId, role, releaseYear, workCount, boxoffice));
+            }
+
+            double impactIndex;
+            Star star;
+            for (Map.Entry<Integer, List<StarYearRoleBoxPojo>> entry : yearRoleMap.entrySet()) {
+                starId = entry.getKey();
+                yearRoleBoxs = entry.getValue();
+                impactIndex = StarImpactModel.computeIndexByWorkMatrix2(yearRoleBoxs, minYear);
+                star = starFacade.find(starId);
+                if (star != null) {
+                    star.setImpactIndex(impactIndex);
+                    starFacade.edit(star);
+                }
+            }
         }
 
     }

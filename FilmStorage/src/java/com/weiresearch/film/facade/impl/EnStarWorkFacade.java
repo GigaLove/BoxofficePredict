@@ -46,6 +46,27 @@ public class EnStarWorkFacade extends AbstractFacade<StarWork> {
         }
     }
 
+    public List<Object[]> getAllStarWorkAvgInfoByReleaseYear(int minYear, int maxYear) {
+        String queryStr = String.format("select star_id, role, release_year, count(*) as work_count,"
+                + " avg(boxoffice) as avg_boxoffice from star_work where boxoffice > 0 and release_year BETWEEN %s "
+                + "and %s GROUP BY star_id, release_year, role order by star_id, release_year, role", minYear, maxYear);
+        Query query = this.getEntityManager().createNativeQuery(queryStr);
+        try {
+            return (List<Object[]>) query.getResultList();
+        } catch (Exception e) {
+            Logger.getLogger(EnStarWorkFacade.class.getName()).log(Level.SEVERE, null, e);
+            return null;
+        }
+    }
+
+    /**
+     * 获取特定演员一定时间里的影视作品统计信息
+     *
+     * @param starId
+     * @param minYear
+     * @param maxYear
+     * @return
+     */
     public List<Object[]> getStarWorkByReleaseYear(int starId, int minYear, int maxYear) {
         String queryStr = String.format("select star_id, role, release_year, count(*) as work_count,"
                 + " sum(boxoffice) as total_boxoffice from star_work where star_id = %s and boxoffice > 0 and release_year BETWEEN %s "
@@ -59,6 +80,14 @@ public class EnStarWorkFacade extends AbstractFacade<StarWork> {
         }
     }
 
+    /**
+     * 获取特定演员一定时间里的影视作品信息
+     *
+     * @param starId
+     * @param minYear
+     * @param maxYear
+     * @return
+     */
     public List<StarWork> getStarWorkByYear(int starId, int minYear, int maxYear) {
         Query query = this.getEntityManager().createQuery("select sw from StarWork "
                 + "sw where sw.starId=:starId and sw.releaseYear between :minYear "

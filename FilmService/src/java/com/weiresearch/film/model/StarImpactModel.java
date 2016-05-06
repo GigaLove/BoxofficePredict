@@ -10,6 +10,8 @@ import com.weiresearch.film.pojo.StarYearRoleBoxPojo;
 import com.weiresearch.film.util.BoxofficeConst;
 import com.weiresearch.film.util.DataTool;
 import com.weiresearch.film.util.MatrixTool;
+import static com.weiresearch.film.util.MatrixTool.VECTOR_COLUMN;
+import static com.weiresearch.film.util.MatrixTool.VECTOR_ROW;
 import static com.weiresearch.film.util.MovieConst.ROLE_COUNT;
 import static com.weiresearch.film.util.MovieConst.YEAR_SPAN;
 import java.io.BufferedReader;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -279,6 +282,13 @@ public class StarImpactModel {
         }
     }
 
+    /**
+     * 基于近5年的作品及身份信息，计算艺人的票房影响力
+     *
+     * @param yearRoleBoxs
+     * @param minYear
+     * @return
+     */
     public static double computeIndexByWorkMatrix(List<StarYearRoleBoxPojo> yearRoleBoxs, int minYear) {
         double[][] workMatrix = new double[YEAR_SPAN][ROLE_COUNT];
         for (StarYearRoleBoxPojo yrb : yearRoleBoxs) {
@@ -291,6 +301,38 @@ public class StarImpactModel {
         double[][] res = MatrixTool.multiply(tmpRes, MatrixTool.vector2Matrix(
                 BoxofficeConst.ROLE_WEIGHT, 1));
         return res[0][0];
+    }
+
+    /**
+     * 基于近几年的作品及身份信息，计算艺人的票房影响力
+     *
+     * @param yearRoleBoxs
+     * @param minYear
+     * @return
+     */
+    public static double computeIndexByWorkMatrix2(List<StarYearRoleBoxPojo> yearRoleBoxs, int minYear) {
+        int curYear = Calendar.getInstance().get(Calendar.YEAR);
+        double[][] workMatrix = new double[curYear - minYear][ROLE_COUNT];
+        for (StarYearRoleBoxPojo yrb : yearRoleBoxs) {
+            int year = yrb.getYear();
+            int role = yrb.getRole();
+            workMatrix[year - minYear][role - 1] = yrb.getBoxoffice() / BoxofficeConst.YEAR_HIGHEST_BOXOFFICE.get(year);
+        }
+        // 基于S型曲线计算时间权重
+        double[] yearRatio = new double[workMatrix.length];
+        for (int i = 0; i < yearRatio.length; i++) {
+            yearRatio[i] = logistic(i, 0, 2);
+        }
+
+        double[][] tmpRes = MatrixTool.multiply(MatrixTool.vector2Matrix(
+                yearRatio, VECTOR_ROW), workMatrix);
+        double[][] res = MatrixTool.multiply(tmpRes, MatrixTool.vector2Matrix(
+                BoxofficeConst.ROLE_WEIGHT, VECTOR_COLUMN));
+        return res[0][0];
+    }
+
+    private static double logistic(double x, double u, double lamda) {
+        return 1 / (1 + Math.exp(-1 * (x - u) / lamda));
     }
 
     public static void main(String[] args) {

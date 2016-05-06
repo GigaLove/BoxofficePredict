@@ -5,6 +5,9 @@
  */
 package com.weiresearch.film.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  * @author GigaLiu
@@ -12,6 +15,20 @@ package com.weiresearch.film.util;
 public class BoxofficeConst {
 
     public static final int HIGHEST_BOXOFFICE = 20000;
+    
+    public static final Map<Integer, Integer> YEAR_HIGHEST_BOXOFFICE;
+    static {
+        YEAR_HIGHEST_BOXOFFICE = new HashMap<>();
+        YEAR_HIGHEST_BOXOFFICE.put(2016, 339059);
+        YEAR_HIGHEST_BOXOFFICE.put(2015, 243800);
+        YEAR_HIGHEST_BOXOFFICE.put(2014, 197900);
+        YEAR_HIGHEST_BOXOFFICE.put(2013, 124699);
+        YEAR_HIGHEST_BOXOFFICE.put(2012, 126801);
+        YEAR_HIGHEST_BOXOFFICE.put(2011, 107157);
+        YEAR_HIGHEST_BOXOFFICE.put(2010, 138200);
+        YEAR_HIGHEST_BOXOFFICE.put(2009, 45227);
+        YEAR_HIGHEST_BOXOFFICE.put(2008, 32500);
+    }
 
     /**
      * 2011-2015历年上映影片数量
