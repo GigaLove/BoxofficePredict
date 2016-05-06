@@ -5,6 +5,7 @@
  */
 package com.weiresearch.film.pojo;
 
+import static com.weiresearch.film.util.MovieConst.ROLE_COUNT;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +46,8 @@ public class EnMoviePojo {
     /**
      * 主创指数
      */
-    private List<Double> chiefIndexs;
-    private double videoChiefIndex = -1;
+    private List<Double>[] chiefIndexs;
+    private double[] videoChiefIndex;
 
     /**
      * 营销事件
@@ -70,7 +71,11 @@ public class EnMoviePojo {
     public EnMoviePojo(long id, String name) {
         this.id = id;
         this.name = name;
-        this.chiefIndexs = new ArrayList<>();
+        this.chiefIndexs = new List[ROLE_COUNT];
+        for (int i = 0; i < chiefIndexs.length; i++) {
+            chiefIndexs[i] = new ArrayList<>();
+        }
+        this.videoChiefIndex = new double[ROLE_COUNT];
     }
 
     public long getId() {
@@ -193,24 +198,28 @@ public class EnMoviePojo {
         this.isSeries = isSeries;
     }
 
-    public List<Double> getChiefIndexs() {
+    public List<Double>[] getChiefIndexs() {
         return chiefIndexs;
     }
 
-    public void addChiefIndex(double impactIndex) {
-        this.chiefIndexs.add(impactIndex);
+    public void addChiefIndex(int role, double impactIndex) {
+        this.chiefIndexs[role].add(impactIndex);
     }
 
-    public void setChiefIndexs(List<Double> chiefIndexs) {
+    public void setChiefIndexs(List<Double>[] chiefIndexs) {
         this.chiefIndexs = chiefIndexs;
     }
 
-    public double getVideoChiefIndex() {
+    public double[] getVideoChiefIndex() {
         return videoChiefIndex;
     }
 
-    public void setVideoChiefIndex(double videoChiefIndex) {
+    public void setVideoChiefIndex(double[] videoChiefIndex) {
         this.videoChiefIndex = videoChiefIndex;
+    }
+
+    public void setVideoChiefIndex(int role, double chiefIndex) {
+        this.videoChiefIndex[role] = chiefIndex;
     }
 
     public int getIsIp() {
@@ -244,7 +253,7 @@ public class EnMoviePojo {
 //                + "," + starOneBoxIndex + "," + starTwoBoxIndex + "," + boxClass;
         return id + "," + type + "," + country + "," + releaseYear
                 + "," + period + "," + is3D + "," + isIMAX + "," + isIp + "," + isSeries + "," + marketCount
-                + "," + videoChiefIndex + "," + boxClass;
+                + "," + videoChiefIndex[0] + "," + videoChiefIndex[1] + "," + boxClass;
     }
 
 }

@@ -128,7 +128,7 @@ public class MovieModel {
             while ((lineStr = br.readLine()) != null) {
                 if (!lineStr.startsWith("id")) {
                     try {
-                        values = lineStr.split(",");
+                        values = lineStr.replace("\"", "").split(",");
                         int rank = Integer.parseInt(values[12]);
                         if (rank < 3) {
                             long movieId = Long.parseLong(values[0]);
@@ -142,11 +142,12 @@ public class MovieModel {
                                 movie.setIsSeries(Integer.parseInt(values[6]));
                                 movie.setIsIp(Integer.parseInt(values[7]));
                                 movie.setMarketCount(Integer.parseInt(values[8]));
-                                movie.setBoxClass(filterBoxoffice3(values[9]));
+                                movie.setBoxClass(filterBoxoffice(values[9]));
                                 movieMap.put(movieId, movie);
                             }
                             movie = movieMap.get(movieId);
-                            movie.addChiefIndex(this.optDouble(values[14]));
+                            movie.addChiefIndex(Integer.parseInt(values[11]) - 1,
+                                    this.optDouble(values[14]));
                         }
                     } catch (NumberFormatException ex) {
                         Logger.getLogger(DataTool.class.getName()).log(Level.INFO, null, ex);
@@ -155,16 +156,18 @@ public class MovieModel {
             }
 
             for (Map.Entry<Long, EnMoviePojo> entry : movieMap.entrySet()) {
-                List<Double> impactIndexs = entry.getValue().getChiefIndexs();
-                int count = 0;
-                double impactValue = 0;
-                for (Double val : impactIndexs) {
-                    if (val != null && val != 0) {
-                        impactValue += val;
-                        count++;
+                List<Double>[] impactIndexs = entry.getValue().getChiefIndexs();
+                for (int i = 0; i < impactIndexs.length; i++) {
+                    int count = 0;
+                    double impactValue = 0;
+                    for (Double val : impactIndexs[i]) {
+                        if (val != null && val != 0) {
+                            impactValue += val;
+                            count++;
+                        }
                     }
+                    entry.getValue().setVideoChiefIndex(i, count > 0 ? (impactValue / count) : 0);
                 }
-                entry.getValue().setVideoChiefIndex(count > 0 ? (impactValue / count) : 0);
             }
 
         } catch (IOException ex) {
@@ -195,7 +198,7 @@ public class MovieModel {
 //                pw.println("id,type,country,releaseYear,period,"
 //                        + "is3D,isIMAX,dirBoxIndex,starOneBoxIndex,starTwoBoxIndex,boxClass");
                 pw.println("id,type,country,releaseYear,period,"
-                        + "is3D,isIMAX,isIp,isSeries,marketCount,chiefIndex,boxClass");
+                        + "is3D,isIMAX,isIp,isSeries,marketCount,directorIndex,actorIndex,boxClass");
                 for (Map.Entry<Long, EnMoviePojo> entry : movieMap.entrySet()) {
                     pw.println(entry.getValue());
                 }
@@ -421,8 +424,8 @@ public class MovieModel {
 //        model.compute("data/EN2016票房.csv",
 //                "data/star_works_2.txt");
 //        model.writeMovieInfo("data/test_data_4.csv");
-        model.computeEnMovie("E:/Workspaces/NetBeansProject/Film/data/en_movie_origin_20160506.csv",
-                "E:/Workspaces/NetBeansProject/Film/data/en_filter_20160506.csv");
+        model.computeEnMovie("E:/Workspaces/NetBeansProject/Film/data/en_movie_origin_20160506_2.csv",
+                "E:/Workspaces/NetBeansProject/Film/data/en_filter_20160506_2.csv");
     }
 
 }

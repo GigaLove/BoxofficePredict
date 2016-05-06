@@ -165,12 +165,18 @@ public class BoxPredictModel {
         trainData = new Instances(allData, 0);
         testData = new Instances(allData, 0);
 
+        int[] counts = new int[allData.classAttribute().numValues()];
         for (int i = 0; i < allData.numInstances(); i++) {
             int year = Integer.parseInt(allData.instance(i).stringValue(2));
+            int boxoffice = (int) allData.instance(i).classValue();
+
             if (year == 2016) {
                 testData.add(new Instance(allData.instance(i)));
             } else {
-                trainData.add(new Instance(allData.instance(i)));
+                if (counts[boxoffice] < 300) {
+                    trainData.add(new Instance(allData.instance(i)));
+                    counts[boxoffice]++;
+                }
             }
         }
     }
@@ -265,7 +271,7 @@ public class BoxPredictModel {
 //        mModel.trainModelByJ48();
 //        mModel.j48ParaSelect();
 //        mModel.evaluateByTestData();
-        mModel.convertCsv2Arff2("E:/Workspaces/NetBeansProject/Film/data/en_filter_20160506.csv",
-                "E:/Workspaces/NetBeansProject/Film/data/en_filter_train6_20160506.arff");
+        mModel.convertCsv2Arff2("E:/Workspaces/NetBeansProject/Film/data/en_filter_20160506_2.csv",
+                "E:/Workspaces/NetBeansProject/Film/data/en_filter_train6_20160506_2.arff");
     }
 }

@@ -187,7 +187,7 @@ public class StarIndexUpdateServlet extends HttpServlet {
          */
         private void computeIndexByYear() {
             int maxYear = Calendar.getInstance().get(Calendar.YEAR) - 1;
-            int minYear = 2008;
+            int minYear = 2000;
 
             List<Object[]> starWorks = starWorkFacade.getAllStarWorkAvgInfoByReleaseYear(minYear, maxYear);
             Map<Integer, List<StarYearRoleBoxPojo>> yearRoleMap = new HashMap<>();
