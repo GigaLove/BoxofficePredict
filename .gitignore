@@ -1,0 +1,10 @@
+FilmService/nbproject/private/*
+FilmService/build/*
+FilmService/dist/*
+
+FilmStorage/nbproject/private/*
+FilmStorage/build/*
+FilmStorage/dist/*
+
+*.sql
+data/*
