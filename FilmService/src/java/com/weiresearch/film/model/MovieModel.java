@@ -47,6 +47,12 @@ public class MovieModel {
         starModel.compute();
     }
 
+    /**
+     * version 0.1 加载影视影视信息
+     *
+     * @param moviePath
+     * @return
+     */
     private Map<Long, EnMoviePojo> loadMovieInfo(String moviePath) {
         BufferedReader br;
         try {
@@ -90,6 +96,11 @@ public class MovieModel {
         return movieMap;
     }
 
+    /**
+     * version 0.2加载影视信息
+     *
+     * @param inputPath
+     */
     public void loadEnMovieInfo(String inputPath) {
         BufferedReader br = null;
         try {
@@ -154,6 +165,11 @@ public class MovieModel {
         }
     }
 
+    /**
+     * 将处理过的影视信息重新保存下来
+     *
+     * @param outputPath
+     */
     public void writeMovieInfo(String outputPath) {
         FileOutputStream fos;
         PrintWriter pw;
@@ -168,6 +184,7 @@ public class MovieModel {
                 for (Map.Entry<Long, EnMoviePojo> entry : movieMap.entrySet()) {
                     pw.println(entry.getValue());
                 }
+                pw.flush();
                 pw.close();
                 fos.close();
             }
@@ -277,7 +294,7 @@ public class MovieModel {
                 } else if (date.after(winBegin) && date.before(winEnd) || date.equals(winBegin) || date.equals(winEnd)) {
                     return 2;
                 } else if (date.after(chrisBegin) && date.before(chrisEnd) || date.equals(chrisBegin) || date.equals(chrisEnd)) {
-                    return 2;
+                    return 3;
                 } else {
                     return 0;
                 }
