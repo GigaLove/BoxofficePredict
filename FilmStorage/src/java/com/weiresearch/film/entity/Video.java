@@ -42,6 +42,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Video.findByIp", query = "SELECT v FROM Video v WHERE v.ip = :ip"),
     @NamedQuery(name = "Video.findByMarketCount", query = "SELECT v FROM Video v WHERE v.marketCount = :marketCount"),
     @NamedQuery(name = "Video.findByBoxoffice", query = "SELECT v FROM Video v WHERE v.boxoffice = :boxoffice"),
+    @NamedQuery(name = "Video.findByAvgTrailerView", query = "SELECT v FROM Video v WHERE v.avgTrailerView = :avgTrailerView"),
+    @NamedQuery(name = "Video.findByMaxTrailerView", query = "SELECT v FROM Video v WHERE v.maxTrailerView = :maxTrailerView"),
     @NamedQuery(name = "Video.findByUpdateTime", query = "SELECT v FROM Video v WHERE v.updateTime = :updateTime")})
 public class Video implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -87,6 +89,10 @@ public class Video implements Serializable {
     private Integer marketCount;
     @Column(name = "boxoffice")
     private Integer boxoffice;
+    @Column(name = "avg_trailer_view")
+    private Integer avgTrailerView;
+    @Column(name = "max_trailer_view")
+    private Integer maxTrailerView;
     @Column(name = "update_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateTime;
@@ -206,6 +212,22 @@ public class Video implements Serializable {
 
     public void setBoxoffice(Integer boxoffice) {
         this.boxoffice = boxoffice;
+    }
+
+    public Integer getAvgTrailerView() {
+        return avgTrailerView;
+    }
+
+    public void setAvgTrailerView(Integer avgTrailerView) {
+        this.avgTrailerView = avgTrailerView;
+    }
+
+    public Integer getMaxTrailerView() {
+        return maxTrailerView;
+    }
+
+    public void setMaxTrailerView(Integer maxTrailerView) {
+        this.maxTrailerView = maxTrailerView;
     }
 
     public Date getUpdateTime() {

@@ -5,7 +5,6 @@
  */
 package com.weiresearch.film.util;
 
-
 import com.weiresearch.film.pojo.Movie;
 import com.weiresearch.film.pojo.MovieInfo;
 import com.weiresearch.film.pojo.MovieTrailer;
@@ -237,7 +236,6 @@ public class DataTool {
                         director.setImpactIndex(si.getImpactIndex());
                     }
                 }
-//                System.out.println(entry.getValue());
             }
         } catch (IOException ex) {
             Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
@@ -248,9 +246,10 @@ public class DataTool {
      * 加载预告片观看量等信息
      *
      * @param inputPath
+     * @return
      */
-    public void loadTrailerInfo(String inputPath) {
-        BufferedReader br;
+    public Map<Integer, MovieTrailer> loadTrailerInfo(String inputPath) {
+        BufferedReader br = null;
 
         try {
             br = new BufferedReader(new InputStreamReader(new FileInputStream(
@@ -260,9 +259,9 @@ public class DataTool {
             trailerMap = new HashMap<>();
             MovieTrailer movieTrailer;
             int mid;
-            Pattern pattern = Pattern.compile("http://.*?\",(.*)");
+            Pattern pattern = Pattern.compile("http[s]?://.*?\",\"(.*)\"$");
             Matcher matcher;
-            String statisticJson;
+            String statisticStr;
             JSONArray trailerArray;
             JSONObject trailerObject;
 
@@ -278,12 +277,11 @@ public class DataTool {
 
                 matcher = pattern.matcher(lineStr);
                 if (matcher.find()) {
-                    statisticJson = matcher.group(1);
-                    statisticJson = statisticJson.substring(1, statisticJson.length() - 1);
+                    statisticStr = matcher.group(1).replace("\\", "");
                     try {
                         List<TrailerView> trailerList = new ArrayList<>();
-                        if (statisticJson.charAt(0) == '[') {
-                            trailerArray = new JSONArray(statisticJson);
+                        if (statisticStr.charAt(0) == '[') {
+                            trailerArray = new JSONArray(statisticStr);
                             for (int i = 0; i < trailerArray.length(); i++) {
                                 trailerObject = trailerArray.getJSONObject(i);
                                 trailerList.add(new TrailerView(trailerObject.getInt("views"),
@@ -291,7 +289,7 @@ public class DataTool {
                                         trailerObject.getInt("negetive")));
                             }
                         } else {
-                            trailerObject = new JSONObject(statisticJson);
+                            trailerObject = new JSONObject(statisticStr);
                             trailerList.add(new TrailerView(trailerObject.getInt("views"),
                                     trailerObject.getInt("willing"), trailerObject.getInt("positive"),
                                     trailerObject.getInt("negetive")));
@@ -304,27 +302,40 @@ public class DataTool {
                     System.out.println(lineStr);
                 }
             }
-            br.close();
 
-            for (Map.Entry<String, Movie> entry : movieMap.entrySet()) {
-                mid = entry.getValue().getId();
-                movieTrailer = trailerMap.get(mid);
-                if (movieTrailer != null) {
-                    movieTrailer.computeAvgTrailerInfo();
-                    entry.getValue().setTrailerView(movieTrailer.getAvgTrailerInfo());
-                } else {
-                    entry.getValue().setTrailerView(new TrailerView());
-                }
+            for (Map.Entry<Integer, MovieTrailer> entry : trailerMap.entrySet()) {
+                entry.getValue().computeAvgTrailerInfo();
+                entry.getValue().computeMaxTrailerInfo();
             }
 
+//            for (Map.Entry<String, Movie> entry : movieMap.entrySet()) {
+//                mid = entry.getValue().getId();
+//                movieTrailer = trailerMap.get(mid);
+//                if (movieTrailer != null) {
+//                    movieTrailer.computeAvgTrailerInfo();
+//                    entry.getValue().setTrailerView(movieTrailer.getAvgTrailerInfo());
+//                } else {
+//                    entry.getValue().setTrailerView(new TrailerView());
+//                }
+//            }
         } catch (IOException ex) {
             Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         }
+        return trailerMap;
     }
-    
+
     /**
      * 将整理好的影片信息写入csv文件
-     * @param outputPath 
+     *
+     * @param outputPath
      */
     public void writeMovieInfo(String outputPath) {
         FileOutputStream fos;
@@ -466,8 +477,8 @@ public class DataTool {
 
     public static void main(String[] args) {
         DataTool tool = new DataTool();
-        tool.loadMovieInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_info4.csv");
-        tool.loadTrailerInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_trailer.csv");
-        tool.writeMovieInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_ins.csv");
+//        tool.loadMovieInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_info4.csv");
+        tool.loadTrailerInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_trailer_20160508.csv");
+//        tool.writeMovieInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_ins.csv");
     }
 }

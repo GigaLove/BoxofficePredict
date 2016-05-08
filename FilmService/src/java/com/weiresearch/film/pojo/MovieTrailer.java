@@ -6,6 +6,7 @@
 package com.weiresearch.film.pojo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,6 +19,7 @@ public class MovieTrailer {
     private String movieName;
     private final List<List<TrailerView>> viewList;
     private TrailerView avgTrailerInfo;
+    private TrailerView maxTrailerInfo;
 
     public MovieTrailer(int mid, String movieName) {
         this.mid = mid;
@@ -45,6 +47,10 @@ public class MovieTrailer {
         return avgTrailerInfo;
     }
 
+    public TrailerView getMaxTrailerInfo() {
+        return maxTrailerInfo;
+    }
+
     public void addTrailerView(int views, int willing, int positive, int negtive, boolean flag) {
         List<TrailerView> trailerList;
         if (flag) {
@@ -56,7 +62,7 @@ public class MovieTrailer {
             trailerList.add(new TrailerView(views, willing, positive, negtive));
         }
     }
-    
+
     public void addTrailerList(List<TrailerView> trailerList) {
         viewList.add(trailerList);
     }
@@ -68,17 +74,26 @@ public class MovieTrailer {
         int neg = 0;
 
         for (List<TrailerView> trailerList : viewList) {
-            for (TrailerView view : trailerList) {
-                views += view.getViews();
-                willings += view.getWilling();
-                pos += view.getPositive();
-                neg += view.getNegtive();
-            }
+            Collections.sort(trailerList);
+            views += trailerList.get(0).getViews();
+            willings += trailerList.get(0).getWilling();
+            pos += trailerList.get(0).getPositive();
+            neg += trailerList.get(0).getNegtive();
         }
         views /= viewList.size();
         willings /= viewList.size();
         pos /= viewList.size();
         neg /= viewList.size();
         avgTrailerInfo = new TrailerView(views, willings, pos, neg);
+    }
+
+    public void computeMaxTrailerInfo() {
+        List<TrailerView> allTrailerViews = new ArrayList<>();
+
+        for (List<TrailerView> trailerList : viewList) {
+            allTrailerViews.addAll(trailerList);
+        }
+        Collections.sort(allTrailerViews);
+        maxTrailerInfo = allTrailerViews.get(0);
     }
 }
