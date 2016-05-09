@@ -8,6 +8,7 @@ package com.weiresearch.film.service;
 import com.weiresearch.film.entity.Video;
 import com.weiresearch.film.facade.impl.EnStarFacade;
 import com.weiresearch.film.facade.impl.EnVideoFacade;
+import com.weiresearch.film.model.BoxPredictModel;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.GET;

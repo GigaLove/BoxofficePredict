@@ -36,7 +36,7 @@ import weka.filters.unsupervised.attribute.NumericToNominal;
  * @author GigaLiu
  */
 public class BoxPredictModel {
-
+    
     private Instances trainOrigin;
     private Instances trainData;
     private Instances testOrigin;
@@ -45,7 +45,7 @@ public class BoxPredictModel {
 
     /**
      * version 0.1 将csv文件转换成arff文件
-     *
+     * 
      * @param inputPath
      * @param outputPath
      */
@@ -142,7 +142,7 @@ public class BoxPredictModel {
             return null;
         }
     }
-
+    
     private Instances loadArff(String inputPath) {
         if (inputPath != null || new File(inputPath).isFile()) {
             ArffLoader loader = new ArffLoader();
@@ -177,12 +177,12 @@ public class BoxPredictModel {
         allData.deleteAttributeAt(9);
         trainOrigin = new Instances(allData, 0);
         testOrigin = new Instances(allData, 0);
-
+        
         int[] counts = new int[allData.classAttribute().numValues()];
         for (int i = 0; i < allData.numInstances(); i++) {
             int year = Integer.parseInt(allData.instance(i).stringValue(2));
             int boxoffice = (int) allData.instance(i).classValue();
-
+            
             if (year == 2016) {
                 testOrigin.add(new Instance(allData.instance(i)));
             } else {
@@ -192,7 +192,7 @@ public class BoxPredictModel {
                 }
             }
         }
-
+        
         trainData = new Instances(trainOrigin);
         trainData.deleteAttributeAt(0);
         testData = new Instances(testOrigin);
@@ -211,16 +211,16 @@ public class BoxPredictModel {
         allData.deleteAttributeAt(11);
         
         allData.randomize(new Random(1));
-
+        
         trainOrigin = allData.trainCV(numFolds, numFold);
         trainData = new Instances(trainOrigin);
         trainData.deleteAttributeAt(0);
-
+        
         testOrigin = allData.testCV(numFolds, numFold);
         testData = new Instances(testOrigin);
         testData.deleteAttributeAt(0);
     }
-
+    
     public void loadTrainData(String inputPath) {
         this.trainOrigin = loadArff(inputPath);
         if (trainData != null) {
@@ -229,7 +229,7 @@ public class BoxPredictModel {
             trainData.setClassIndex(trainData.numAttributes() - 1);
         }
     }
-
+    
     public void loadTestData(String inputPath) {
         this.testOrigin = loadArff(inputPath);
         if (testOrigin != null) {
@@ -238,7 +238,7 @@ public class BoxPredictModel {
             testData.setClassIndex(testData.numAttributes() - 1);
         }
     }
-
+    
     public void addAttribute() {
         Add filter = new Add();
         filter.setAttributeIndex("last");
@@ -250,7 +250,7 @@ public class BoxPredictModel {
             Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     public void trainModelByJ48() {
         J48 treeCls = new J48();
         trainData.randomize(new Random(1));
@@ -263,7 +263,7 @@ public class BoxPredictModel {
             Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     public void trainModelByNaiveBayes() {
         NaiveBayes bayesCls = new NaiveBayes();
         trainData.randomize(new Random(1));
@@ -275,7 +275,7 @@ public class BoxPredictModel {
             Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     public void trainModelBySMO() {
         SMO smoCls = new SMO();
         trainData.randomize(new Random(1));
@@ -287,7 +287,7 @@ public class BoxPredictModel {
             Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     public void j48ParaSelect() {
         CVParameterSelection selection = new CVParameterSelection();
         selection.setClassifier(cls);
@@ -299,7 +299,7 @@ public class BoxPredictModel {
             Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     private void crossValidate() {
         Evaluation eval;
         try {
@@ -334,12 +334,29 @@ public class BoxPredictModel {
      *
      * @param outputPath
      */
-    public void serizableCls(String outputPath) {
+    public void serializeCls(String outputPath) {
         ObjectOutputStream oo;
         try {
             oo = new ObjectOutputStream(new FileOutputStream(new File(outputPath)));
             oo.writeObject(cls);
             Logger.getLogger(BoxPredictModel.class.getName()).log(Level.INFO, "Classifier serialize success");
+            oo.close();
+        } catch (IOException ex) {
+            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * 序列化分类器
+     *
+     * @param outputPath
+     */
+    public void serializeDataSchema(String outputPath) {
+        ObjectOutputStream oo;
+        try {
+            oo = new ObjectOutputStream(new FileOutputStream(new File(outputPath)));
+            oo.writeObject(new Instances(trainData, 0));
+            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.INFO, "Data schema serialize success");
             oo.close();
         } catch (IOException ex) {
             Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
@@ -364,6 +381,12 @@ public class BoxPredictModel {
         }
     }
 
+    /**
+     * 模型测试
+     *
+     * @param predictData
+     * @return
+     */
     public int predict(Instance predictData) {
         try {
             if (predictData != null && cls != null) {
@@ -402,7 +425,7 @@ public class BoxPredictModel {
             }
         }
     }
-
+    
     public void run(String inputPath) {
         this.loadAllData(inputPath);
         this.trainModelByJ48();
@@ -411,7 +434,7 @@ public class BoxPredictModel {
 //        this.trainModelBySMO();
         this.outputWrongInfo();
     }
-
+    
     public static void main(String[] args) {
         BoxPredictModel mModel = new BoxPredictModel();
 //        mModel.convertCsv2Arff("data/train_data_4_2016.csv",
@@ -430,6 +453,6 @@ public class BoxPredictModel {
 //        mModel.convertCsv2Arff2("E:/Workspaces/NetBeansProject/Film/data/en_filter_20160509_04.csv",
 //                "E:/Workspaces/NetBeansProject/Film/data/en_filter_train5_20160509_04.arff");
         mModel.run("E:/Workspaces/NetBeansProject/Film/data/en_filter_train5_20160509_04.arff");
-        mModel.serizableCls("E:/Workspaces/NetBeansProject/Film/data/j48_cls.model");
+        mModel.serializeCls("E:/Workspaces/NetBeansProject/Film/data/j48_cls.model");
     }
 }
