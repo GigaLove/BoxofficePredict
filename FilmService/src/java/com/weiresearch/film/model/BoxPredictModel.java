@@ -271,7 +271,7 @@ public class BoxPredictModel {
 //        mModel.trainModelByJ48();
 //        mModel.j48ParaSelect();
 //        mModel.evaluateByTestData();
-        mModel.convertCsv2Arff2("E:/Workspaces/NetBeansProject/Film/data/en_filter_20160506_2.csv",
-                "E:/Workspaces/NetBeansProject/Film/data/en_filter_train6_20160506_2.arff");
+        mModel.convertCsv2Arff2("E:/Workspaces/NetBeansProject/Film/data/en_filter_20160509_01.csv",
+                "E:/Workspaces/NetBeansProject/Film/data/en_filter_train6_20160509_01.arff");
     }
 }

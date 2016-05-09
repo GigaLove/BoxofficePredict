@@ -4,9 +4,17 @@
         <servlet-name>StarIndexUpdateServlet</servlet-name>
         <servlet-class>com.weiresearch.film.service.StarIndexUpdateServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>VideoTrailerUpdateServlet</servlet-name>
+        <servlet-class>com.weiresearch.film.service.VideoTrailerUpdateServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>StarIndexUpdateServlet</servlet-name>
         <url-pattern>/StarIndexUpdate</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>VideoTrailerUpdateServlet</servlet-name>
+        <url-pattern>/VideoTrailerUpdate</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

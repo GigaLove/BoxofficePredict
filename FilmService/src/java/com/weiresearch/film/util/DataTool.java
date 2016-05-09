@@ -7,10 +7,10 @@ package com.weiresearch.film.util;
 
 import com.weiresearch.film.pojo.Movie;
 import com.weiresearch.film.pojo.MovieInfo;
-import com.weiresearch.film.pojo.MovieTrailer;
+import com.weiresearch.film.pojo.MovieTrailerPojo;
 import com.weiresearch.film.pojo.StarPojo;
 import com.weiresearch.film.pojo.StarImpactPojo;
-import com.weiresearch.film.pojo.TrailerView;
+import com.weiresearch.film.pojo.TrailerViewPojo;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -42,7 +42,7 @@ public class DataTool {
     private Map<String, Movie> movieMap;
     private Map<String, StarImpactPojo> starImpactMap;
     private Map<String, StarImpactPojo> directorImpactMap;
-    private Map<Integer, MovieTrailer> trailerMap;
+    private Map<Integer, MovieTrailerPojo> trailerMap;
 
     public Map<String, Movie> getMovieMap() {
         return movieMap;
@@ -248,7 +248,7 @@ public class DataTool {
      * @param inputPath
      * @return
      */
-    public Map<Integer, MovieTrailer> loadTrailerInfo(String inputPath) {
+    public Map<Integer, MovieTrailerPojo> loadTrailerInfo(String inputPath) {
         BufferedReader br = null;
 
         try {
@@ -257,7 +257,7 @@ public class DataTool {
             String lineStr;
             String[] lineValues;
             trailerMap = new HashMap<>();
-            MovieTrailer movieTrailer;
+            MovieTrailerPojo movieTrailer;
             int mid;
             Pattern pattern = Pattern.compile("http[s]?://.*?\",\"(.*)\"$");
             Matcher matcher;
@@ -269,8 +269,8 @@ public class DataTool {
                 lineValues = lineStr.split(",");
                 mid = Integer.parseInt(lineValues[0]);
                 if (!trailerMap.containsKey(mid)) {
-                    movieTrailer = new MovieTrailer(mid,
-                            lineValues[1].substring(1, lineValues[1].length()));
+                    movieTrailer = new MovieTrailerPojo(mid,
+                            lineValues[1].replace("\"", ""));
                     trailerMap.put(mid, movieTrailer);
                 }
                 movieTrailer = trailerMap.get(mid);
@@ -279,18 +279,18 @@ public class DataTool {
                 if (matcher.find()) {
                     statisticStr = matcher.group(1).replace("\\", "");
                     try {
-                        List<TrailerView> trailerList = new ArrayList<>();
+                        List<TrailerViewPojo> trailerList = new ArrayList<>();
                         if (statisticStr.charAt(0) == '[') {
                             trailerArray = new JSONArray(statisticStr);
                             for (int i = 0; i < trailerArray.length(); i++) {
                                 trailerObject = trailerArray.getJSONObject(i);
-                                trailerList.add(new TrailerView(trailerObject.getInt("views"),
+                                trailerList.add(new TrailerViewPojo(trailerObject.getInt("views"),
                                         trailerObject.getInt("willing"), trailerObject.getInt("positive"),
                                         trailerObject.getInt("negetive")));
                             }
                         } else {
                             trailerObject = new JSONObject(statisticStr);
-                            trailerList.add(new TrailerView(trailerObject.getInt("views"),
+                            trailerList.add(new TrailerViewPojo(trailerObject.getInt("views"),
                                     trailerObject.getInt("willing"), trailerObject.getInt("positive"),
                                     trailerObject.getInt("negetive")));
                         }
@@ -303,9 +303,10 @@ public class DataTool {
                 }
             }
 
-            for (Map.Entry<Integer, MovieTrailer> entry : trailerMap.entrySet()) {
+            for (Map.Entry<Integer, MovieTrailerPojo> entry : trailerMap.entrySet()) {
                 entry.getValue().computeAvgTrailerInfo();
                 entry.getValue().computeMaxTrailerInfo();
+                System.out.println(entry.getValue());
             }
 
 //            for (Map.Entry<String, Movie> entry : movieMap.entrySet()) {
@@ -315,7 +316,7 @@ public class DataTool {
 //                    movieTrailer.computeAvgTrailerInfo();
 //                    entry.getValue().setTrailerView(movieTrailer.getAvgTrailerInfo());
 //                } else {
-//                    entry.getValue().setTrailerView(new TrailerView());
+//                    entry.getValue().setTrailerView(new TrailerViewPojo());
 //                }
 //            }
         } catch (IOException ex) {

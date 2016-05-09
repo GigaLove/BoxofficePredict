@@ -129,7 +129,7 @@ public class MovieModel {
                 if (!lineStr.startsWith("id")) {
                     try {
                         values = lineStr.replace("\"", "").split(",");
-                        int rank = Integer.parseInt(values[12]);
+                        int rank = Integer.parseInt(values[14]);
                         if (rank < 3) {
                             long movieId = Long.parseLong(values[0]);
                             if (!movieMap.containsKey(movieId)) {
@@ -142,12 +142,14 @@ public class MovieModel {
                                 movie.setIsSeries(Integer.parseInt(values[6]));
                                 movie.setIsIp(Integer.parseInt(values[7]));
                                 movie.setMarketCount(Integer.parseInt(values[8]));
-                                movie.setBoxClass(filterBoxoffice(values[9]));
+                                movie.setAvgTrailerView(Integer.parseInt(values[9]));
+                                movie.setMaxTrailerView(Integer.parseInt(values[10]));
+                                movie.setBoxClass(filterBoxoffice(values[11]));
                                 movieMap.put(movieId, movie);
                             }
                             movie = movieMap.get(movieId);
-                            movie.addChiefIndex(Integer.parseInt(values[11]) - 1,
-                                    this.optDouble(values[14]));
+                            movie.addChiefIndex(Integer.parseInt(values[13]) - 1,
+                                    this.optDouble(values[16]));
                         }
                     } catch (NumberFormatException ex) {
                         Logger.getLogger(DataTool.class.getName()).log(Level.INFO, null, ex);
@@ -198,7 +200,7 @@ public class MovieModel {
 //                pw.println("id,type,country,releaseYear,period,"
 //                        + "is3D,isIMAX,dirBoxIndex,starOneBoxIndex,starTwoBoxIndex,boxClass");
                 pw.println("id,type,country,releaseYear,period,"
-                        + "is3D,isIMAX,isIp,isSeries,marketCount,directorIndex,actorIndex,boxClass");
+                        + "is3D,isIMAX,isIp,isSeries,marketCount,directorIndex,actorIndex,avgTrailerView,maxTrailerView,boxClass");
                 for (Map.Entry<Long, EnMoviePojo> entry : movieMap.entrySet()) {
                     pw.println(entry.getValue());
                 }
@@ -424,8 +426,13 @@ public class MovieModel {
 //        model.compute("data/EN2016票房.csv",
 //                "data/star_works_2.txt");
 //        model.writeMovieInfo("data/test_data_4.csv");
-        model.computeEnMovie("E:/Workspaces/NetBeansProject/Film/data/en_movie_origin_20160506_2.csv",
-                "E:/Workspaces/NetBeansProject/Film/data/en_filter_20160506_2.csv");
+        // 2016-05-06输出模型，仅考虑基本影视信息和主创指数
+//        model.computeEnMovie("E:/Workspaces/NetBeansProject/Film/data/en_movie_origin_20160506_2.csv",
+//                "E:/Workspaces/NetBeansProject/Film/data/en_filter_20160506_2.csv");
+        
+        // 2016-05-09输出模型，考虑ip，系列电影，预告片
+        model.computeEnMovie("E:/Workspaces/NetBeansProject/Film/data/movie_trailer_train_20160509.csv",
+                "E:/Workspaces/NetBeansProject/Film/data/en_filter_20160509_01.csv");
     }
 
 }

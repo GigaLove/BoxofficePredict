@@ -63,6 +63,13 @@ public class EnMoviePojo {
      * 0：非ip电影 1：ip电影
      */
     private int isIp;
+
+    /**
+     * 预告片播放量信息，平均/最大播放量
+     */
+    private int avgTrailerView;
+    private int maxTrailerView;
+
     /**
      * 0：千万以下 1：1-5千万 2：5千万-1亿 3：1亿-5亿 4：5亿-10亿 5:10亿以上
      */
@@ -238,6 +245,22 @@ public class EnMoviePojo {
         this.marketCount = marketCount;
     }
 
+    public int getAvgTrailerView() {
+        return avgTrailerView;
+    }
+
+    public void setAvgTrailerView(int avgTrailerView) {
+        this.avgTrailerView = avgTrailerView;
+    }
+
+    public int getMaxTrailerView() {
+        return maxTrailerView;
+    }
+
+    public void setMaxTrailerView(int maxTrailerView) {
+        this.maxTrailerView = maxTrailerView;
+    }
+
     public int getBoxClass() {
         return boxClass;
     }
@@ -253,7 +276,8 @@ public class EnMoviePojo {
 //                + "," + starOneBoxIndex + "," + starTwoBoxIndex + "," + boxClass;
         return id + "," + type + "," + country + "," + releaseYear
                 + "," + period + "," + is3D + "," + isIMAX + "," + isIp + "," + isSeries + "," + marketCount
-                + "," + videoChiefIndex[0] + "," + videoChiefIndex[1] + "," + boxClass;
+                + "," + videoChiefIndex[0] + "," + videoChiefIndex[1] + "," + avgTrailerView 
+                + "," + maxTrailerView + "," + boxClass;
     }
 
 }

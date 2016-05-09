@@ -54,18 +54,9 @@ public class StarIndexUpdateServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         ResPOJO res = new ResPOJO();
 
-        try {
-            int method = Integer.parseInt(request.getParameter("method"));
-            Thread indexThread = new StarIndexThread(starWorkFacade, starFacade, method);
-            indexThread.start();
-            res.setCode(0);
-            res.setMsg("Star index update task commit successfully");
-        } catch (NumberFormatException ex) {
-            Logger.getLogger(StarIndexUpdateServlet.class.getName()).log(Level.SEVERE,
-                    null, ex);
-            res.setCode(1);
-            res.setMsg("Invalid parameter!");
-        }
+        
+        
+        
 
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {

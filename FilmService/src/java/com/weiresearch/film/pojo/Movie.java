@@ -21,7 +21,7 @@ public class Movie {
     private String country;
     private List<StarPojo> directorList;
     private List<StarPojo> starList;
-    private TrailerView trailerView;
+    private TrailerViewPojo trailerView;
     private double boxoffice;
     
     public Movie() {
@@ -102,11 +102,11 @@ public class Movie {
         this.boxoffice = boxoffice;
     }
 
-    public TrailerView getTrailerView() {
+    public TrailerViewPojo getTrailerView() {
         return trailerView;
     }
 
-    public void setTrailerView(TrailerView trailerView) {
+    public void setTrailerView(TrailerViewPojo trailerView) {
         this.trailerView = trailerView;
     }
     

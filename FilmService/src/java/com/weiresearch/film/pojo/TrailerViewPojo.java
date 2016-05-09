@@ -9,21 +9,21 @@ package com.weiresearch.film.pojo;
  *
  * @author GigaLiu
  */
-public class TrailerView implements Comparable<TrailerView> {
-
+public class TrailerViewPojo implements Comparable<TrailerViewPojo> {
+    
     private int views;
     private int willing;
     private int positive;
     private int negtive;
 
-    public TrailerView() {
+    public TrailerViewPojo() {
         this.views = -1;
         this.willing = -1;
         this.positive = -1;
         this.negtive = -1;
     }
 
-    public TrailerView(int views, int willing, int positive, int negtive) {
+    public TrailerViewPojo(int views, int willing, int positive, int negtive) {
         this.views = views;
         this.willing = willing;
         this.positive = positive;
@@ -63,7 +63,7 @@ public class TrailerView implements Comparable<TrailerView> {
     }
 
     @Override
-    public int compareTo(TrailerView o) {
+    public int compareTo(TrailerViewPojo o) {
         return o.views - this.views;
     }
 }
