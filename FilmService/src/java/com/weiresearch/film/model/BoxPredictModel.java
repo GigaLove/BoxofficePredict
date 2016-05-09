@@ -6,13 +6,19 @@
 package com.weiresearch.film.model;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.functions.SMO;
 import weka.classifiers.meta.CVParameterSelection;
 import weka.classifiers.trees.J48;
 import weka.core.Instance;
@@ -31,6 +37,7 @@ import weka.filters.unsupervised.attribute.NumericToNominal;
  */
 public class BoxPredictModel {
 
+    private Instances trainOrigin;
     private Instances trainData;
     private Instances testOrigin;
     private Instances testData;
@@ -83,13 +90,13 @@ public class BoxPredictModel {
             data = num2Nominal(data, toNomIndex);
             if (data != null) {
                 data.setClassIndex(data.numAttributes() - 1);
-                data = normalize(data, 1.0, 0.0);
-                if (data != null) {
-                    // 存储数据集到arff文件
-                    saver.setInstances(data);
-                    saver.setFile(new File(outputPath));
-                    saver.writeBatch();
-                }
+//                data = normalize(data, 1.0, 0.0);
+//                if (data != null) {
+                // 存储数据集到arff文件
+                saver.setInstances(data);
+                saver.setFile(new File(outputPath));
+                saver.writeBatch();
+//                }
             }
         } catch (IOException ex) {
             Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
@@ -156,14 +163,20 @@ public class BoxPredictModel {
      */
     public void loadAllData(String inputPath) {
         Instances allData = loadArff(inputPath);
-        allData.deleteAttributeAt(0);
         allData.setClassIndex(allData.numAttributes() - 1);
-        spiltData(allData);
+//        splitDataByYear(allData);
+        splitDataByRandom(allData, 5, 1);
     }
 
-    private void spiltData(Instances allData) {
-        trainData = new Instances(allData, 0);
-        testData = new Instances(allData, 0);
+    /**
+     * 划分训练集和测试集
+     *
+     * @param allData
+     */
+    private void splitDataByYear(Instances allData) {
+        allData.deleteAttributeAt(9);
+        trainOrigin = new Instances(allData, 0);
+        testOrigin = new Instances(allData, 0);
 
         int[] counts = new int[allData.classAttribute().numValues()];
         for (int i = 0; i < allData.numInstances(); i++) {
@@ -171,19 +184,47 @@ public class BoxPredictModel {
             int boxoffice = (int) allData.instance(i).classValue();
 
             if (year == 2016) {
-                testData.add(new Instance(allData.instance(i)));
+                testOrigin.add(new Instance(allData.instance(i)));
             } else {
                 if (counts[boxoffice] < 300) {
-                    trainData.add(new Instance(allData.instance(i)));
+                    trainOrigin.add(new Instance(allData.instance(i)));
                     counts[boxoffice]++;
                 }
             }
         }
+
+        trainData = new Instances(trainOrigin);
+        trainData.deleteAttributeAt(0);
+        testData = new Instances(testOrigin);
+        testData.deleteAttributeAt(0);
+    }
+
+    /**
+     * 基于NUM_FOLD生成数据集和验证集
+     *
+     * @param allData
+     */
+    private void splitDataByRandom(Instances allData, int numFolds, int numFold) {
+        // remove marketCount, tralerView
+        allData.deleteAttributeAt(9);
+        allData.deleteAttributeAt(11);
+        allData.deleteAttributeAt(11);
+        
+        allData.randomize(new Random(1));
+
+        trainOrigin = allData.trainCV(numFolds, numFold);
+        trainData = new Instances(trainOrigin);
+        trainData.deleteAttributeAt(0);
+
+        testOrigin = allData.testCV(numFolds, numFold);
+        testData = new Instances(testOrigin);
+        testData.deleteAttributeAt(0);
     }
 
     public void loadTrainData(String inputPath) {
-        this.trainData = loadArff(inputPath);
+        this.trainOrigin = loadArff(inputPath);
         if (trainData != null) {
+            trainData = new Instances(trainOrigin);
             trainData.deleteAttributeAt(0);
             trainData.setClassIndex(trainData.numAttributes() - 1);
         }
@@ -194,7 +235,7 @@ public class BoxPredictModel {
         if (testOrigin != null) {
             testData = new Instances(testOrigin);
             testData.deleteAttributeAt(0);
-            testData.setClassIndex(trainData.numAttributes() - 1);
+            testData.setClassIndex(testData.numAttributes() - 1);
         }
     }
 
@@ -214,15 +255,34 @@ public class BoxPredictModel {
         J48 treeCls = new J48();
         trainData.randomize(new Random(1));
         try {
-//            treeCls.setOptions(new String[]{"C", "0.1"});
             treeCls.setConfidenceFactor(0.1f);
             treeCls.buildClassifier(trainData);
-            Evaluation eval = new Evaluation(trainData);
-            eval.crossValidateModel(treeCls, trainData, 10, new Random(1));
-            System.out.println(eval.toSummaryString());//输出总结信息
-            System.out.println(eval.toClassDetailsString());//输出分类详细信息
-            System.out.println(eval.toMatrixString());//输出分类的混淆矩阵
             this.cls = treeCls;
+            this.crossValidate();
+        } catch (Exception ex) {
+            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void trainModelByNaiveBayes() {
+        NaiveBayes bayesCls = new NaiveBayes();
+        trainData.randomize(new Random(1));
+        try {
+            bayesCls.buildClassifier(trainData);
+            this.cls = bayesCls;
+            this.crossValidate();
+        } catch (Exception ex) {
+            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void trainModelBySMO() {
+        SMO smoCls = new SMO();
+        trainData.randomize(new Random(1));
+        try {
+            smoCls.buildClassifier(trainData);
+            this.cls = smoCls;
+            this.crossValidate();
         } catch (Exception ex) {
             Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -235,6 +295,19 @@ public class BoxPredictModel {
             selection.addCVParameter("C 0.1 0.5 5.0");
             selection.buildClassifier(trainData);
             System.out.println(Arrays.toString(selection.getBestClassifierOptions()));
+        } catch (Exception ex) {
+            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void crossValidate() {
+        Evaluation eval;
+        try {
+            eval = new Evaluation(trainData);
+            eval.crossValidateModel(cls, trainData, 10, new Random(1));
+            System.out.println(eval.toSummaryString());//输出总结信息
+            System.out.println(eval.toClassDetailsString());//输出分类详细信息
+            System.out.println(eval.toMatrixString());//输出分类的混淆矩阵
         } catch (Exception ex) {
             Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -256,6 +329,89 @@ public class BoxPredictModel {
         }
     }
 
+    /**
+     * 序列化分类器
+     *
+     * @param outputPath
+     */
+    public void serizableCls(String outputPath) {
+        ObjectOutputStream oo;
+        try {
+            oo = new ObjectOutputStream(new FileOutputStream(new File(outputPath)));
+            oo.writeObject(cls);
+            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.INFO, "Classifier serialize success");
+            oo.close();
+        } catch (IOException ex) {
+            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * 基于序列化文件读取分类器
+     *
+     * @param modelPath
+     */
+    public void readModel(String modelPath) {
+        ObjectInputStream ois;
+        try {
+            ois = new ObjectInputStream(new FileInputStream(modelPath));
+            cls = (Classifier) ois.readObject();
+            ois.close();
+            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.INFO, "Classifier deserialize success");
+        } catch (IOException | ClassNotFoundException ex) {
+            cls = null;
+            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public int predict(Instance predictData) {
+        try {
+            if (predictData != null && cls != null) {
+                return (int) cls.classifyInstance(predictData);
+            } else {
+                return -1;
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
+            return -2;
+        }
+    }
+
+    /**
+     * 输出错误信息
+     */
+    public void outputWrongInfo() {
+        if (testData != null && cls != null) {
+            try {
+                Instance predictData;
+                int count = 0;
+                for (int i = 0; i < testData.numInstances(); i++) {
+                    predictData = testData.instance(i);
+                    int predictVal = (int) cls.classifyInstance(predictData);
+                    int classVal = (int) predictData.classValue();
+                    if (predictVal != classVal) {
+                        count++;
+                        System.out.println(String.format("Predict Instances: %s, predict value: %s, class value: %s",
+                                testOrigin.instance(i).toString(), predictVal, classVal));
+                    }
+                }
+                System.out.println(String.format("Predict instances %s, wrong count %s",
+                        testData.numInstances(), count));
+            } catch (Exception ex) {
+                Logger.getLogger(BoxPredictModel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    public void run(String inputPath) {
+        this.loadAllData(inputPath);
+        this.trainModelByJ48();
+//        this.j48ParaSelect();
+//        this.trainModelByNaiveBayes();
+//        this.trainModelBySMO();
+        this.outputWrongInfo();
+    }
+
     public static void main(String[] args) {
         BoxPredictModel mModel = new BoxPredictModel();
 //        mModel.convertCsv2Arff("data/train_data_4_2016.csv",
@@ -271,7 +427,9 @@ public class BoxPredictModel {
 //        mModel.trainModelByJ48();
 //        mModel.j48ParaSelect();
 //        mModel.evaluateByTestData();
-        mModel.convertCsv2Arff2("E:/Workspaces/NetBeansProject/Film/data/en_filter_20160509_01.csv",
-                "E:/Workspaces/NetBeansProject/Film/data/en_filter_train6_20160509_01.arff");
+//        mModel.convertCsv2Arff2("E:/Workspaces/NetBeansProject/Film/data/en_filter_20160509_04.csv",
+//                "E:/Workspaces/NetBeansProject/Film/data/en_filter_train5_20160509_04.arff");
+        mModel.run("E:/Workspaces/NetBeansProject/Film/data/en_filter_train5_20160509_04.arff");
+        mModel.serizableCls("E:/Workspaces/NetBeansProject/Film/data/j48_cls.model");
     }
 }

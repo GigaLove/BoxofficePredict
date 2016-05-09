@@ -67,8 +67,8 @@ public class EnMoviePojo {
     /**
      * 预告片播放量信息，平均/最大播放量
      */
-    private int avgTrailerView;
-    private int maxTrailerView;
+    private double avgTrailerView;
+    private double maxTrailerView;
 
     /**
      * 0：千万以下 1：1-5千万 2：5千万-1亿 3：1亿-5亿 4：5亿-10亿 5:10亿以上
@@ -245,19 +245,19 @@ public class EnMoviePojo {
         this.marketCount = marketCount;
     }
 
-    public int getAvgTrailerView() {
+    public double getAvgTrailerView() {
         return avgTrailerView;
     }
 
-    public void setAvgTrailerView(int avgTrailerView) {
+    public void setAvgTrailerView(double avgTrailerView) {
         this.avgTrailerView = avgTrailerView;
     }
 
-    public int getMaxTrailerView() {
+    public double getMaxTrailerView() {
         return maxTrailerView;
     }
 
-    public void setMaxTrailerView(int maxTrailerView) {
+    public void setMaxTrailerView(double maxTrailerView) {
         this.maxTrailerView = maxTrailerView;
     }
 

@@ -142,9 +142,9 @@ public class MovieModel {
                                 movie.setIsSeries(Integer.parseInt(values[6]));
                                 movie.setIsIp(Integer.parseInt(values[7]));
                                 movie.setMarketCount(Integer.parseInt(values[8]));
-                                movie.setAvgTrailerView(Integer.parseInt(values[9]));
-                                movie.setMaxTrailerView(Integer.parseInt(values[10]));
-                                movie.setBoxClass(filterBoxoffice(values[11]));
+                                movie.setAvgTrailerView(filterTrailerView(values[9]));
+                                movie.setMaxTrailerView(filterTrailerView(values[10]));
+                                movie.setBoxClass(filterBoxoffice3(values[11]));
                                 movieMap.put(movieId, movie);
                             }
                             movie = movieMap.get(movieId);
@@ -371,6 +371,16 @@ public class MovieModel {
         return 0;
     }
 
+    public static double filterTrailerView(String view) {
+        try {
+            int viewCount = Integer.parseInt(view);
+            return Math.log10(viewCount + 1);
+        } catch (NumberFormatException ex) {
+//            Logger.getLogger(MovieModel.class.getName()).log(Level.SEVERE, null, ex);
+            return 0;
+        }
+    }
+
     public static int filterBoxoffice(String box) {
         double boxoffice = Double.parseDouble(box);
         if (boxoffice > 100000) {
@@ -404,14 +414,12 @@ public class MovieModel {
     public static int filterBoxoffice3(String box) {
         double boxoffice = Double.parseDouble(box);
         if (boxoffice > 100000) {
-            return 5;
-        } else if (boxoffice > 10000) {
             return 4;
-        } else if (boxoffice > 1000) {
+        } else if (boxoffice > 10000) {
             return 3;
-        } else if (boxoffice > 100) {
+        } else if (boxoffice > 1000) {
             return 2;
-        } else if (boxoffice > 10) {
+        } else if (boxoffice > 100) {
             return 1;
         } else {
             return 0;
@@ -429,10 +437,10 @@ public class MovieModel {
         // 2016-05-06输出模型，仅考虑基本影视信息和主创指数
 //        model.computeEnMovie("E:/Workspaces/NetBeansProject/Film/data/en_movie_origin_20160506_2.csv",
 //                "E:/Workspaces/NetBeansProject/Film/data/en_filter_20160506_2.csv");
-        
+
         // 2016-05-09输出模型，考虑ip，系列电影，预告片
-        model.computeEnMovie("E:/Workspaces/NetBeansProject/Film/data/movie_trailer_train_20160509.csv",
-                "E:/Workspaces/NetBeansProject/Film/data/en_filter_20160509_01.csv");
+        model.computeEnMovie("E:/Workspaces/NetBeansProject/Film/data/movie_trailer_train_20160509_02.csv",
+                "E:/Workspaces/NetBeansProject/Film/data/en_filter_20160509_04.csv");
     }
 
 }
