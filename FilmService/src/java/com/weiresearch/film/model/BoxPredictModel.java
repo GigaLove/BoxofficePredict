@@ -373,7 +373,7 @@ public class BoxPredictModel {
     public void readModel(String modelPath) {
         ObjectInputStream ois;
         try {
-            ois = new ObjectInputStream(new FileInputStream(modelPath));
+            ois = new ObjectInputStream(BoxPredictModel.class.getClassLoader().getResourceAsStream(modelPath));
             this.cls = (Classifier) ois.readObject();
             ois.close();
             Logger.getLogger(BoxPredictModel.class.getName()).log(Level.INFO, "Classifier deserialize success");
@@ -428,13 +428,14 @@ public class BoxPredictModel {
         }
     }
 
-    public void run(String inputPath) {
+    public void run(String inputPath, String outputPath) {
         this.loadAllData(inputPath);
-        this.trainModelByJ48();
+//        this.trainModelByJ48();
 //        this.j48ParaSelect();
 //        this.trainModelByNaiveBayes();
-//        this.trainModelBySMO();
-        this.outputWrongInfo();
+        this.trainModelBySMO();
+//        this.outputWrongInfo();
+//        this.serializeCls(outputPath);
     }
 
     public static void main(String[] args) {
@@ -454,7 +455,8 @@ public class BoxPredictModel {
 //        mModel.evaluateByTestData();
 //        mModel.convertCsv2Arff2("E:/Workspaces/NetBeansProject/Film/data/en_filter_20160509_04.csv",
 //                "E:/Workspaces/NetBeansProject/Film/data/en_filter_train5_20160509_04.arff");
-        mModel.run("E:/Workspaces/NetBeansProject/Film/data/en_filter_train5_20160509_04.arff");
-//        mModel.serializeCls("E:/Workspaces/NetBeansProject/Film/data/j48_cls.model");
+        mModel.run("E:/Workspaces/NetBeansProject/Film/data/en_filter_train5_20160509_04.arff",
+                "E:/Workspaces/NetBeansProject/Film/data/smo_cls.model");
+        mModel.serializeDataSchema("E:/Workspaces/NetBeansProject/Film/data/data.model");
     }
 }

@@ -11,37 +11,18 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author GigaLiu
  */
-@XmlRootElement
 public class PredictResPojo {
 
-    private int j48Res;
-    private int bayesRes;
-    private int smoRes;
+    private final PredictRes predictRes;
     private int errorCode;
     private String msg;
-
-    public int getJ48Res() {
-        return j48Res;
+    
+    public PredictResPojo() {
+        this.predictRes = new PredictRes();
     }
 
-    public void setJ48Res(int j48Res) {
-        this.j48Res = j48Res;
-    }
-
-    public int getBayesRes() {
-        return bayesRes;
-    }
-
-    public void setBayesRes(int bayesRes) {
-        this.bayesRes = bayesRes;
-    }
-
-    public int getSmoRes() {
-        return smoRes;
-    }
-
-    public void setSmoRes(int smoRes) {
-        this.smoRes = smoRes;
+    public PredictRes getPredictRes() {
+        return predictRes;
     }
 
     public int getErrorCode() {
@@ -58,6 +39,37 @@ public class PredictResPojo {
 
     public void setMsg(String msg) {
         this.msg = msg;
+    }
+
+    public class PredictRes {
+
+        private int j48Res;
+        private int bayesRes;
+        private int smoRes;
+
+        public int getJ48Res() {
+            return j48Res;
+        }
+
+        public void setJ48Res(int j48Res) {
+            this.j48Res = j48Res;
+        }
+
+        public int getBayesRes() {
+            return bayesRes;
+        }
+
+        public void setBayesRes(int bayesRes) {
+            this.bayesRes = bayesRes;
+        }
+
+        public int getSmoRes() {
+            return smoRes;
+        }
+
+        public void setSmoRes(int smoRes) {
+            this.smoRes = smoRes;
+        }
     }
 
 }

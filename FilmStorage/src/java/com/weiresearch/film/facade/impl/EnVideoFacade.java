@@ -35,6 +35,7 @@ public class EnVideoFacade extends AbstractFacade<Video> {
 
     public Video findByName(String name) {
         Query query = this.getEntityManager().createNamedQuery("Video.findByName");
+        query.setParameter("name", name);
         query.setHint("eclipselink.refresh", "True");
         try {
             List<Video> videos = query.getResultList();
@@ -49,7 +50,7 @@ public class EnVideoFacade extends AbstractFacade<Video> {
 
     public List<Object[]> findVideoPredictInfo(String name) {
         String queryStr = "select v.id, v.name, v.type, v.format, v.release_time, v.country, v.series, v.ip, "
-                + "v.market_count, v.boxoffice, s.id as star_id, vsr.role, vsr.rank, s.name as star_name, s.impact_index "
+                + "v.market_count, v.avg_trailer_view, v.max_trailer_view, v.boxoffice, s.id as star_id, vsr.role, vsr.rank, s.name as star_name, s.impact_index "
                 + "from video v join video_star_rel vsr on v.id = vsr.movie_id join star s on vsr.star_id = s.id "
                 + "where v.name = '" + name + "'and YEAR(v.release_time) >= 2016 and (v.country like '中国%' or "
                 + "v.country like '美国%') and s.impact_index is not NULL order by v.id desc, vsr.role, vsr.rank";

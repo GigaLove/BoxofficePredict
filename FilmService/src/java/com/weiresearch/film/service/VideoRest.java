@@ -5,6 +5,7 @@
  */
 package com.weiresearch.film.service;
 
+import com.google.gson.Gson;
 import com.weiresearch.film.entity.Video;
 import com.weiresearch.film.facade.impl.EnVideoFacade;
 import com.weiresearch.film.model.MovieModel;
@@ -42,7 +43,7 @@ public class VideoRest {
     @GET
     @Path("/predict")
     @Produces({MediaType.APPLICATION_JSON})
-    public PredictResPojo getPredictBoxoffice(@QueryParam("name") String videoName, @QueryParam("update") boolean update) {
+    public String getPredictBoxoffice(@QueryParam("name") String videoName) {
         PredictResPojo resPojo = new PredictResPojo();
 
         Video video = this._videoFacade.findByName(videoName);
@@ -51,14 +52,15 @@ public class VideoRest {
             resPojo.setMsg("Invalid video name");
         } else {
             List<Object[]> predictInfo = this._videoFacade.findVideoPredictInfo(videoName);
-            if (predictInfo != null && !predictInfo.isEmpty()) {
-                EnMoviePojo enMoviePojo = MovieModel.convertData(predictInfo);
+            EnMoviePojo enMoviePojo;
+            if (predictInfo != null && !predictInfo.isEmpty()
+                    && (enMoviePojo = MovieModel.convertData(predictInfo)) != null) {
                 SingletonPredictModel.getInstance().predict(enMoviePojo, resPojo);
             } else {
                 resPojo.setErrorCode(2);
                 resPojo.setMsg("Can't find correspond star info");
             }
         }
-        return resPojo;
+        return new Gson().toJson(resPojo);
     }
 }

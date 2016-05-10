@@ -7,6 +7,7 @@ package com.weiresearch.film.model;
 
 import com.weiresearch.film.pojo.EnMoviePojo;
 import com.weiresearch.film.util.DataTool;
+import com.weiresearch.film.util.DateUtil;
 import com.weiresearch.film.util.MovieConst;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -19,6 +20,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -229,17 +231,19 @@ public class MovieModel {
      */
     public static EnMoviePojo convertData(List<Object[]> movieInfos) {
         Map<Long, EnMoviePojo> enMovieMap = new HashMap<>();
-        EnMoviePojo movie;
+        Calendar calendar = Calendar.getInstance();
+        EnMoviePojo movie = null;
         for (Object[] values : movieInfos) {
-            int rank = (int) values[14];
-            if (rank < 5) {
+            int rank = (int) (long) values[14];
+            if (rank < 3) {
                 long movieId = (int) values[0];
                 if (!enMovieMap.containsKey(movieId)) {
                     movie = new EnMoviePojo(movieId, (String) values[1]);
                     movie.setType(filterType((String) values[2]));
                     filterFormat((String) values[3], movie);
-                    movie.setReleaseYear(Integer.parseInt(((String) values[4]).substring(0, 4)));
-                    movie.setPeriod(filterPeriod2((String) values[4]));
+                    calendar.setTime(new java.util.Date(((java.sql.Date) values[4]).getTime()));
+                    movie.setReleaseYear(calendar.get(Calendar.YEAR));
+                    movie.setPeriod(filterPeriod2(DateUtil.date2Str(calendar.getTime())));
                     movie.setCountry(filterCountry((String) values[5]));
                     movie.setIsSeries((int) values[6]);
                     movie.setIsIp((int) values[7]);
@@ -252,8 +256,10 @@ public class MovieModel {
                 movie.addChiefIndex((int) values[13] - 1, (double) values[16]);
             }
         }
-        movie = enMovieMap.entrySet().iterator().next().getValue();
-        MovieModel.computeChiefIndex(movie);
+        if (!enMovieMap.isEmpty()) {
+            movie = enMovieMap.entrySet().iterator().next().getValue();
+            MovieModel.computeChiefIndex(movie);
+        }
         return movie;
     }
 
