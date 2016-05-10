@@ -8,27 +8,35 @@ import java.util.List;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author GigaLiu
  */
-public class Movie {
+public class WeireMoviePojo {
+
     private int id;
     private String name;
+    private String nameEn;
+    private String format;
     private String type;
     private String releaseTime;
+    private String runtime;
     private String country;
     private List<StarPojo> directorList;
     private List<StarPojo> starList;
     private TrailerViewPojo trailerView;
     private double boxoffice;
-    
-    public Movie() {
-        
+
+    public WeireMoviePojo() {
+
     }
-    
-    public Movie(int id, String name, String type, String country, String releaseTime) {
+
+    public WeireMoviePojo(int id) {
+        this.id = id;
+        this.starList = new ArrayList<>();
+    }
+
+    public WeireMoviePojo(int id, String name, String type, String country, String releaseTime) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -37,7 +45,7 @@ public class Movie {
         this.directorList = new ArrayList<>();
         this.starList = new ArrayList<>();
     }
-    
+
     public int getId() {
         return id;
     }
@@ -54,6 +62,14 @@ public class Movie {
         this.name = name;
     }
 
+    public String getNameEn() {
+        return nameEn;
+    }
+
+    public void setNameEn(String nameEn) {
+        this.nameEn = nameEn;
+    }
+
     public String getType() {
         return type;
     }
@@ -62,12 +78,28 @@ public class Movie {
         this.type = type;
     }
 
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
     public String getReleaseTime() {
         return releaseTime;
     }
 
     public void setReleaseTime(String releaseTime) {
         this.releaseTime = releaseTime;
+    }
+
+    public String getRuntime() {
+        return runtime;
+    }
+
+    public void setRuntime(String runtime) {
+        this.runtime = runtime;
     }
 
     public String getCountry() {
@@ -109,21 +141,20 @@ public class Movie {
     public void setTrailerView(TrailerViewPojo trailerView) {
         this.trailerView = trailerView;
     }
-    
-    
+
     public void addDirector(StarPojo director) {
         this.directorList.add(director);
     }
-    
+
     public void addStar(StarPojo star) {
         this.starList.add(star);
     }
-    
+
     @Override
     public String toString() {
-        return "{" +  name + "," + type + "," + releaseTime + "," + country 
-                + "," + directorList.toString() + "," + starList.toString() 
+        return "{" + name + "," + type + "," + releaseTime + "," + country
+                + "," + directorList.toString() + "," + starList.toString()
                 + "," + boxoffice;
     }
-    
+
 }

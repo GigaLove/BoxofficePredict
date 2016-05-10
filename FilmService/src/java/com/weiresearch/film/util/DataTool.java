@@ -5,7 +5,10 @@
  */
 package com.weiresearch.film.util;
 
-import com.weiresearch.film.pojo.Movie;
+import com.weiresearch.film.controller.StarController;
+import com.weiresearch.film.controller.VideoController;
+import com.weiresearch.film.controller.VideoStarRelController;
+import com.weiresearch.film.pojo.WeireMoviePojo;
 import com.weiresearch.film.pojo.MovieInfo;
 import com.weiresearch.film.pojo.MovieTrailerPojo;
 import com.weiresearch.film.pojo.StarPojo;
@@ -22,6 +25,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,12 +43,15 @@ import org.json.JSONObject;
  */
 public class DataTool {
 
-    private Map<String, Movie> movieMap;
+    private Map<String, WeireMoviePojo> movieMap;
     private Map<String, StarImpactPojo> starImpactMap;
     private Map<String, StarImpactPojo> directorImpactMap;
     private Map<Integer, MovieTrailerPojo> trailerMap;
+    private final VideoController videoController = new VideoController();
+    private final StarController starController = new StarController();
+    private final VideoStarRelController videoStarRelController = new VideoStarRelController();
 
-    public Map<String, Movie> getMovieMap() {
+    public Map<String, WeireMoviePojo> getMovieMap() {
         return movieMap;
     }
 
@@ -72,7 +79,7 @@ public class DataTool {
             String[] values;
             String movieName;
             int starType;
-            Movie movie;
+            WeireMoviePojo movie;
             StarPojo star;
 
             while ((lineStr = br.readLine()) != null) {
@@ -80,13 +87,13 @@ public class DataTool {
                 starType = Integer.parseInt(values[7]);
                 if (starType == 1 || starType == 4) {
                     star = new StarPojo(values[6]);
-                    star.setType(starType);
+                    star.setRole(starType);
                     star.setWeiboUrl(values[8].equals("\\N") ? null : values[8]);
                     star.setFans(values[11].equals("\\N") ? 0 : Integer.parseInt(values[10]));
 
                     movieName = values[1];
                     if (!movieMap.containsKey(movieName)) {
-                        movie = new Movie(Integer.parseInt(values[0]), movieName,
+                        movie = new WeireMoviePojo(Integer.parseInt(values[0]), movieName,
                                 values[2], values[3], values[4]);
                         movieMap.put(movieName, movie);
                     }
@@ -121,7 +128,7 @@ public class DataTool {
             String lineStr;
             String[] values;
             String movieName;
-            Movie movie;
+            WeireMoviePojo movie;
 
             while ((lineStr = br.readLine()) != null) {
                 values = lineStr.split(",");
@@ -135,7 +142,7 @@ public class DataTool {
             }
             br.close();
 
-//            for (Map.Entry<String, Movie> entry : movieMap.entrySet()) {
+//            for (Map.Entry<String, WeireMoviePojo> entry : movieMap.entrySet()) {
 //                if (entry.getValue().getStarList().size() > 3) {
 //                    System.out.println(entry.getValue());
 //                }
@@ -180,7 +187,7 @@ public class DataTool {
             br.close();
 
             List<StarPojo> starList;
-            for (Map.Entry<String, Movie> entry : movieMap.entrySet()) {
+            for (Map.Entry<String, WeireMoviePojo> entry : movieMap.entrySet()) {
                 starList = entry.getValue().getStarList();
                 for (StarPojo star : starList) {
                     if ((si = starImpactMap.get(star.getName())) != null) {
@@ -229,7 +236,7 @@ public class DataTool {
             br.close();
 
             List<StarPojo> directorList;
-            for (Map.Entry<String, Movie> entry : movieMap.entrySet()) {
+            for (Map.Entry<String, WeireMoviePojo> entry : movieMap.entrySet()) {
                 directorList = entry.getValue().getDirectorList();
                 for (StarPojo director : directorList) {
                     if ((si = directorImpactMap.get(director.getName())) != null) {
@@ -309,7 +316,7 @@ public class DataTool {
                 System.out.println(entry.getValue());
             }
 
-//            for (Map.Entry<String, Movie> entry : movieMap.entrySet()) {
+//            for (Map.Entry<String, WeireMoviePojo> entry : movieMap.entrySet()) {
 //                mid = entry.getValue().getId();
 //                movieTrailer = trailerMap.get(mid);
 //                if (movieTrailer != null) {
@@ -333,6 +340,85 @@ public class DataTool {
         return trailerMap;
     }
 
+    public void loadComingMovie(String inputPath, String coding) {
+        BufferedReader br = null;
+
+        try {
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(
+                    inputPath), coding));
+            Map<Integer, WeireMoviePojo> movieComingMap = new HashMap<>();
+
+            String lineStr;
+            String[] lineValues;
+            WeireMoviePojo weireMovie;
+            StarPojo star;
+            while ((lineStr = br.readLine()) != null) {
+                lineValues = lineStr.split(",");
+                if (lineValues.length == 12) {
+                    int mId = Integer.parseInt(lineValues[0]);
+                    if (!movieComingMap.containsKey(mId)) {
+                        weireMovie = new WeireMoviePojo(mId);
+                        weireMovie.setName(lineValues[1]);
+                        weireMovie.setNameEn(lineValues[2]);
+                        weireMovie.setType(lineValues[3].replace("|", "/"));
+                        weireMovie.setFormat(lineValues[4]);
+                        weireMovie.setReleaseTime(lineValues[5]);
+                        weireMovie.setRuntime(lineValues[6]);
+                        weireMovie.setCountry(lineValues[7]);
+                        movieComingMap.put(mId, weireMovie);
+                    }
+                    weireMovie = movieComingMap.get(mId);
+                    star = new StarPojo(Long.parseLong(lineValues[9]),
+                            lineValues[10], lineValues[11], Integer.parseInt(lineValues[8]));
+                    weireMovie.addStar(star);
+                }
+            }
+
+            for (Map.Entry<Integer, WeireMoviePojo> entry : movieComingMap.entrySet()) {
+                weireMovie = entry.getValue();
+                int videoId = this.videoController.addVideo(weireMovie);
+                List<StarPojo> starList = weireMovie.getStarList();
+                Collections.sort(starList);
+
+                int[] rank = {1, 1, 1, 1, 1};
+                for (StarPojo starPojo : starList) {
+                    starPojo.setRole(filterRole(starPojo.getRole()));
+                    int starId = this.starController.merge(starPojo);
+                    if (starId > 0) {
+                        this.videoStarRelController.add(videoId, starId,
+                                starPojo.getRole(), rank[starPojo.getRole()]);
+                        rank[starPojo.getRole()]++;
+                    }
+                }
+            }
+
+        } catch (IOException ex) {
+            Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
+    public int filterRole(int role) {
+        switch (role) {
+            case 1:
+            case 2:
+                return 2;
+            case 4:
+                return 1;
+            case 8:
+                return 3;
+            default:
+                return 0;
+        }
+    }
+
     /**
      * 将整理好的影片信息写入csv文件
      *
@@ -346,12 +432,12 @@ public class DataTool {
                 fos = new FileOutputStream(new File(outputPath));
                 pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputPath), "utf-8")));
                 MovieInfo mi;
-                Movie movie;
+                WeireMoviePojo movie;
 //                pw.println("name,type,country,releaseTime,dirBoxImpactIndex,"
 //                        + "starBoxImpactIndex,dirSocialImpactIndex,starSocialImpactIndex,series,boxClass");
                 pw.println("name,type,country,releaseTime,dirBoxImpactIndex,"
                         + "starBoxImpactIndex,trailerViews,trailerPos,trailerNeg,boxClass");
-                for (Map.Entry<String, Movie> entry : movieMap.entrySet()) {
+                for (Map.Entry<String, WeireMoviePojo> entry : movieMap.entrySet()) {
                     movie = entry.getValue();
                     if (movie.getTrailerView() == null) {
                         continue;
@@ -479,7 +565,8 @@ public class DataTool {
     public static void main(String[] args) {
         DataTool tool = new DataTool();
 //        tool.loadMovieInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_info4.csv");
-        tool.loadTrailerInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_trailer_20160508.csv");
+//        tool.loadTrailerInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_trailer_20160508.csv");
 //        tool.writeMovieInfo("C:\\Users\\GigaLiu\\Desktop\\影视数据全\\movie_ins.csv");
+        tool.loadComingMovie("C:/Users/GigaLiu/Desktop/影视数据全/movie_coming_20160510.csv", "GBK");
     }
 }
