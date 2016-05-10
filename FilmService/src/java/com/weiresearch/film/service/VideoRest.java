@@ -6,15 +6,19 @@
 package com.weiresearch.film.service;
 
 import com.weiresearch.film.entity.Video;
-import com.weiresearch.film.facade.impl.EnStarFacade;
 import com.weiresearch.film.facade.impl.EnVideoFacade;
-import com.weiresearch.film.model.BoxPredictModel;
+import com.weiresearch.film.model.MovieModel;
+import com.weiresearch.film.model.SingletonPredictModel;
+import com.weiresearch.film.pojo.EnMoviePojo;
+import com.weiresearch.film.pojo.PredictResPojo;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -27,8 +31,6 @@ public class VideoRest {
 
     @EJB
     private EnVideoFacade _videoFacade;
-    @EJB
-    private EnStarFacade _starFacade;
 
     @GET
     @Path("{id}")
@@ -38,13 +40,25 @@ public class VideoRest {
     }
 
     @GET
-    @Path("/predict/{id}")
-    @Produces({MediaType.TEXT_PLAIN})
-    public double getPredictBoxoffice(@PathParam("id") Integer videoId) {
-        Video videoInfo = _videoFacade.find(videoId);
-        if (videoInfo != null) {
+    @Path("/predict")
+    @Produces({MediaType.APPLICATION_JSON})
+    public PredictResPojo getPredictBoxoffice(@QueryParam("name") String videoName, @QueryParam("update") boolean update) {
+        PredictResPojo resPojo = new PredictResPojo();
 
+        Video video = this._videoFacade.findByName(videoName);
+        if (video == null) {
+            resPojo.setErrorCode(1);
+            resPojo.setMsg("Invalid video name");
+        } else {
+            List<Object[]> predictInfo = this._videoFacade.findVideoPredictInfo(videoName);
+            if (predictInfo != null && !predictInfo.isEmpty()) {
+                EnMoviePojo enMoviePojo = MovieModel.convertData(predictInfo);
+                SingletonPredictModel.getInstance().predict(enMoviePojo, resPojo);
+            } else {
+                resPojo.setErrorCode(2);
+                resPojo.setMsg("Can't find correspond star info");
+            }
         }
-        return 0;
+        return resPojo;
     }
 }

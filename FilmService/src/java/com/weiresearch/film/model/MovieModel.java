@@ -158,20 +158,8 @@ public class MovieModel {
             }
 
             for (Map.Entry<Long, EnMoviePojo> entry : movieMap.entrySet()) {
-                List<Double>[] impactIndexs = entry.getValue().getChiefIndexs();
-                for (int i = 0; i < impactIndexs.length; i++) {
-                    int count = 0;
-                    double impactValue = 0;
-                    for (Double val : impactIndexs[i]) {
-                        if (val != null && val != 0) {
-                            impactValue += val;
-                            count++;
-                        }
-                    }
-                    entry.getValue().setVideoChiefIndex(i, count > 0 ? (impactValue / count) : 0);
-                }
+                MovieModel.computeChiefIndex(entry.getValue());
             }
-
         } catch (IOException ex) {
             Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -182,6 +170,26 @@ public class MovieModel {
                     Logger.getLogger(MovieModel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+        }
+    }
+
+    /**
+     * 计算不同身份的主创指数
+     *
+     * @param movie
+     */
+    private static void computeChiefIndex(EnMoviePojo movie) {
+        List<Double>[] impactIndexs = movie.getChiefIndexs();
+        for (int i = 0; i < impactIndexs.length; i++) {
+            int count = 0;
+            double impactValue = 0;
+            for (Double val : impactIndexs[i]) {
+                if (val != null && val != 0) {
+                    impactValue += val;
+                    count++;
+                }
+            }
+            movie.setVideoChiefIndex(i, count > 0 ? (impactValue / count) : 0);
         }
     }
 
@@ -211,6 +219,42 @@ public class MovieModel {
         } catch (IOException ex) {
             Logger.getLogger(DataTool.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    /**
+     * 将原始数据进行特征转换
+     *
+     * @param movieInfos
+     * @return
+     */
+    public static EnMoviePojo convertData(List<Object[]> movieInfos) {
+        Map<Long, EnMoviePojo> enMovieMap = new HashMap<>();
+        EnMoviePojo movie;
+        for (Object[] values : movieInfos) {
+            int rank = (int) values[14];
+            if (rank < 5) {
+                long movieId = (int) values[0];
+                if (!enMovieMap.containsKey(movieId)) {
+                    movie = new EnMoviePojo(movieId, (String) values[1]);
+                    movie.setType(filterType((String) values[2]));
+                    filterFormat((String) values[3], movie);
+                    movie.setReleaseYear(Integer.parseInt(((String) values[4]).substring(0, 4)));
+                    movie.setPeriod(filterPeriod2((String) values[4]));
+                    movie.setCountry(filterCountry((String) values[5]));
+                    movie.setIsSeries((int) values[6]);
+                    movie.setIsIp((int) values[7]);
+                    movie.setMarketCount(values[8] == null ? 0 : (int) values[8]);
+                    movie.setAvgTrailerView(values[9] == null ? filterTrailerView((String) values[9]) : 0);
+                    movie.setMaxTrailerView(values[10] == null ? filterTrailerView((String) values[10]) : 0);
+                    enMovieMap.put(movieId, movie);
+                }
+                movie = enMovieMap.get(movieId);
+                movie.addChiefIndex((int) values[13] - 1, (double) values[16]);
+            }
+        }
+        movie = enMovieMap.entrySet().iterator().next().getValue();
+        MovieModel.computeChiefIndex(movie);
+        return movie;
     }
 
     private double optDouble(String val) {
@@ -287,9 +331,9 @@ public class MovieModel {
                     return MovieConst.AREA_CHINA;
                 } else if (country.equals("美国")) {
                     return MovieConst.AREA_USA;
-                } else if (country.equals("中国香港")) {
+                } else if (country.equals("中国香港") || country.equals("香港")) {
                     return MovieConst.AREA_HANGKONG;
-                } else if (countryStr.equals("中国台湾")) {
+                } else if (countryStr.equals("中国台湾") || country.equals("台湾")) {
                     return MovieConst.AREA_TAIWAN;
                 } else {
                     return MovieConst.AREA_OTHER;

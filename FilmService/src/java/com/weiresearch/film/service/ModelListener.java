@@ -5,6 +5,7 @@
  */
 package com.weiresearch.film.service;
 
+import com.weiresearch.film.model.SingletonPredictModel;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -16,6 +17,7 @@ public class ModelListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        SingletonPredictModel.getInstance();
     }
 
     @Override

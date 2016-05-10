@@ -44,7 +44,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Video.findByBoxoffice", query = "SELECT v FROM Video v WHERE v.boxoffice = :boxoffice"),
     @NamedQuery(name = "Video.findByAvgTrailerView", query = "SELECT v FROM Video v WHERE v.avgTrailerView = :avgTrailerView"),
     @NamedQuery(name = "Video.findByMaxTrailerView", query = "SELECT v FROM Video v WHERE v.maxTrailerView = :maxTrailerView"),
-    @NamedQuery(name = "Video.findByUpdateTime", query = "SELECT v FROM Video v WHERE v.updateTime = :updateTime")})
+    @NamedQuery(name = "Video.findByUpdateTime", query = "SELECT v FROM Video v WHERE v.updateTime = :updateTime"),
+    @NamedQuery(name = "Video.findByPredictBoxoffice", query = "SELECT v FROM Video v WHERE v.predictBoxoffice = :predictBoxoffice")})
 public class Video implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
@@ -96,6 +97,8 @@ public class Video implements Serializable {
     @Column(name = "update_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateTime;
+    @Column(name = "predict_boxoffice")
+    private Integer predictBoxoffice;
 
     public Video() {
     }
@@ -236,6 +239,14 @@ public class Video implements Serializable {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Integer getPredictBoxoffice() {
+        return predictBoxoffice;
+    }
+
+    public void setPredictBoxoffice(Integer predictBoxoffice) {
+        this.predictBoxoffice = predictBoxoffice;
     }
 
     @Override
