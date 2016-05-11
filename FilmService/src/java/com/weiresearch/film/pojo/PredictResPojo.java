@@ -13,12 +13,21 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 public class PredictResPojo {
 
+    private EnMoviePojo predictInfo;
     private final PredictRes predictRes;
     private int errorCode;
     private String msg;
-    
+
     public PredictResPojo() {
         this.predictRes = new PredictRes();
+    }
+
+    public EnMoviePojo getPredictInfo() {
+        return predictInfo;
+    }
+
+    public void setPredictInfo(EnMoviePojo predictInfo) {
+        this.predictInfo = predictInfo;
     }
 
     public PredictRes getPredictRes() {

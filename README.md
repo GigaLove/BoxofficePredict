@@ -207,3 +207,6 @@ Weighted Avg.    0.568     0.161      0.57      0.568     0.563      0.785
   * 本地最大video id: 643854
   * 本地最大star id: 2254074
   * 本地最大video_star_rel: 30705
+2. 将模型和训练数据schema进行序列化，反序列化加载到web项目中，并暴露成web service
+
+### 216

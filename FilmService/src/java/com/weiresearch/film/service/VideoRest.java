@@ -55,6 +55,7 @@ public class VideoRest {
             EnMoviePojo enMoviePojo;
             if (predictInfo != null && !predictInfo.isEmpty()
                     && (enMoviePojo = MovieModel.convertData(predictInfo)) != null) {
+                resPojo.setPredictInfo(enMoviePojo);
                 SingletonPredictModel.getInstance().predict(enMoviePojo, resPojo);
             } else {
                 resPojo.setErrorCode(2);
