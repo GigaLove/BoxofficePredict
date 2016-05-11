@@ -89,5 +89,23 @@ public class StarRest {
         }
         return starWorks;
     }
-    
+
+    @GET
+    @Path("/rank")
+    @Produces({MediaType.APPLICATION_JSON})
+    public List<Star> getStarRank(@QueryParam("role") int role) {
+        if (role >= 0) {
+            List<Star> starRank;
+            if (role == 0) {
+                starRank = this._starFacade.getRankStar();
+            } else {
+                starRank = this._starFacade.getRankStar(role);
+            }
+            for (Star s : starRank) {
+                s.setDescription("");
+            }
+            return starRank;
+        }
+        return new ArrayList<>();
+    }
 }

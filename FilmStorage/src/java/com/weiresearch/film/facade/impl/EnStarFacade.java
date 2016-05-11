@@ -6,9 +6,14 @@
 package com.weiresearch.film.facade.impl;
 
 import com.weiresearch.film.entity.Star;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -27,5 +32,38 @@ public class EnStarFacade extends AbstractFacade<Star> {
     @Override
     protected EntityManager getEntityManager() {
         return em;
+    }
+
+    public List<Star> getRankStar() {
+        Query query = this.getEntityManager().createQuery("select s from Star s "
+                + "where s.impactIndex is not null order by s.impactIndex desc");
+        query.setMaxResults(100);
+        query.setHint("eclipselink.refresh", "True");
+        try {
+            List<Star> rankStars = (List<Star>) query.getResultList();
+            if (!rankStars.isEmpty()) {
+                return rankStars;
+            }
+        } catch (Exception e) {
+            Logger.getLogger(EnStarWorkFacade.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<Star> getRankStar(int role) {
+        Query query = this.getEntityManager().createQuery("select distinct(s) from Star s join StarWork sw on s.id = sw.starId"
+                + " where s.impactIndex is not null and sw.role = :role order by s.impactIndex desc");
+        query.setMaxResults(100);
+        query.setParameter("role", role);
+        query.setHint("eclipselink.refresh", "True");
+        try {
+            List<Star> rankStars = query.getResultList();
+            if (!rankStars.isEmpty()) {
+                return rankStars;
+            }
+        } catch (Exception e) {
+            Logger.getLogger(EnStarWorkFacade.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return new ArrayList<>();
     }
 }

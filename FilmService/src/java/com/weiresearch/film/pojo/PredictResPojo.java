@@ -87,7 +87,25 @@ public class PredictResPojo {
         }
 
         public void computeMaxRes() {
-            this.maxRes = Math.max(Math.max(j48Res, bayesRes), smoRes);
+//            this.maxRes = Math.max(Math.max(j48Res, bayesRes), smoRes);
+            int[] predicts = new int[5];
+            if (j48Res > 0) {
+                predicts[j48Res]++;
+            }
+            if (smoRes > 0) {
+                predicts[smoRes]++;
+            }
+            if (bayesRes > 0) {
+                predicts[bayesRes]++;
+            }
+
+            int res = 0;
+            for (int i = 1; i < predicts.length; i++) {
+                if (predicts[i] > predicts[res]) {
+                    res = i;
+                }
+            }
+            this.maxRes = res;
         }
 
         public int getMaxRes() {
