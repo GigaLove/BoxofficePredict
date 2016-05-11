@@ -8,7 +8,6 @@ package com.weiresearch.film.model;
 import com.weiresearch.film.pojo.EnMoviePojo;
 import com.weiresearch.film.pojo.PredictResPojo;
 import com.weiresearch.film.service.PropertiesLoader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.logging.Level;
@@ -97,14 +96,15 @@ public class SingletonPredictModel {
         return new Instance(1, attrs);
     }
 
-    public void predict(EnMoviePojo movieInfo, PredictResPojo predictRes) {
+    public void predict(EnMoviePojo movieInfo, PredictResPojo predictResPojo) {
         Instance predictData = this.convertInstance(movieInfo);
         Instances predictDatas = new Instances(schemaData);
         predictDatas.add(predictData);
-        predictRes.getPredictRes().setJ48Res(this.j48Model.predict(predictDatas.lastInstance()));
-        predictRes.getPredictRes().setBayesRes(this.bayesModel.predict(predictDatas.lastInstance()));
-        predictRes.getPredictRes().setSmoRes(this.smoModel.predict(predictDatas.lastInstance()));
-        predictRes.setErrorCode(0);
-        predictRes.setMsg("success");
+        predictResPojo.getPredictRes().setJ48Res(this.j48Model.predict(predictDatas.lastInstance()));
+        predictResPojo.getPredictRes().setBayesRes(this.bayesModel.predict(predictDatas.lastInstance()));
+        predictResPojo.getPredictRes().setSmoRes(this.smoModel.predict(predictDatas.lastInstance()));
+        predictResPojo.getPredictRes().computeMaxRes();
+        predictResPojo.setErrorCode(0);
+        predictResPojo.setMsg("success");
     }
 }

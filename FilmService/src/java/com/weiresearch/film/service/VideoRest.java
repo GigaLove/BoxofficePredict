@@ -55,8 +55,8 @@ public class VideoRest {
             EnMoviePojo enMoviePojo;
             if (predictInfo != null && !predictInfo.isEmpty()
                     && (enMoviePojo = MovieModel.convertData(predictInfo)) != null) {
-                resPojo.setPredictInfo(enMoviePojo);
                 SingletonPredictModel.getInstance().predict(enMoviePojo, resPojo);
+                resPojo.setPredictInfo(enMoviePojo);
             } else {
                 resPojo.setErrorCode(2);
                 resPojo.setMsg("Can't find correspond star info");

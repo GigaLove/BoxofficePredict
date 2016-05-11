@@ -5,7 +5,7 @@
  */
 package com.weiresearch.film.pojo;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import java.text.DecimalFormat;
 
 /**
  *
@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 public class PredictResPojo {
 
+    private static final DecimalFormat df = new java.text.DecimalFormat("##.0000");
     private EnMoviePojo predictInfo;
     private final PredictRes predictRes;
     private int errorCode;
@@ -28,6 +29,10 @@ public class PredictResPojo {
 
     public void setPredictInfo(EnMoviePojo predictInfo) {
         this.predictInfo = predictInfo;
+        double dirIndex = Double.valueOf(df.format(predictInfo.getVideoChiefIndex()[0]));
+        double starIndex = Double.valueOf(df.format(predictInfo.getVideoChiefIndex()[1]));
+        predictInfo.setVideoChiefIndex(0, dirIndex);
+        predictInfo.setVideoChiefIndex(1, starIndex);
     }
 
     public PredictRes getPredictRes() {
@@ -55,6 +60,7 @@ public class PredictResPojo {
         private int j48Res;
         private int bayesRes;
         private int smoRes;
+        private int maxRes;
 
         public int getJ48Res() {
             return j48Res;
@@ -79,6 +85,15 @@ public class PredictResPojo {
         public void setSmoRes(int smoRes) {
             this.smoRes = smoRes;
         }
+
+        public void computeMaxRes() {
+            this.maxRes = Math.max(Math.max(j48Res, bayesRes), smoRes);
+        }
+
+        public int getMaxRes() {
+            return maxRes;
+        }
+
     }
 
 }
