@@ -33,7 +33,7 @@ public class EnStarFacade extends AbstractFacade<Star> {
     protected EntityManager getEntityManager() {
         return em;
     }
-
+    
     public List<Star> getRankStar() {
         Query query = this.getEntityManager().createQuery("select s from Star s "
                 + "where s.impactIndex is not null order by s.impactIndex desc");
@@ -49,11 +49,46 @@ public class EnStarFacade extends AbstractFacade<Star> {
         }
         return new ArrayList<>();
     }
-
-    public List<Star> getRankStar(int role) {
+    
+    public List<Star> getRankStarByCountry(String country) {
+        Query query = this.getEntityManager().createQuery("select s from Star s "
+                + "where s.impactIndex is not null and s.country = :country order by s.impactIndex desc");
+        query.setParameter("country", country);
+        query.setMaxResults(100);
+        query.setHint("eclipselink.refresh", "True");
+        try {
+            List<Star> rankStars = (List<Star>) query.getResultList();
+            if (!rankStars.isEmpty()) {
+                return rankStars;
+            }
+        } catch (Exception e) {
+            Logger.getLogger(EnStarWorkFacade.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return new ArrayList<>();
+    }
+    
+    public List<Star> getRankStarByRole(int role) {
         Query query = this.getEntityManager().createQuery("select distinct(s) from Star s join StarWork sw on s.id = sw.starId"
                 + " where s.impactIndex is not null and sw.role = :role order by s.impactIndex desc");
         query.setMaxResults(100);
+        query.setParameter("role", role);
+        query.setHint("eclipselink.refresh", "True");
+        try {
+            List<Star> rankStars = query.getResultList();
+            if (!rankStars.isEmpty()) {
+                return rankStars;
+            }
+        } catch (Exception e) {
+            Logger.getLogger(EnStarWorkFacade.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return new ArrayList<>();
+    }
+    
+    public List<Star> getRankStarByRoleAndCountry(int role, String country) {
+        Query query = this.getEntityManager().createQuery("select distinct(s) from Star s join StarWork sw on s.id = sw.starId"
+                + " where s.impactIndex is not null and s.country = :country and sw.role = :role order by s.impactIndex desc");
+        query.setMaxResults(100);
+        query.setParameter("country", country);
         query.setParameter("role", role);
         query.setHint("eclipselink.refresh", "True");
         try {

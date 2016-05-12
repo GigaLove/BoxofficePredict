@@ -93,13 +93,39 @@ public class StarRest {
     @GET
     @Path("/rank")
     @Produces({MediaType.APPLICATION_JSON})
-    public List<Star> getStarRank(@QueryParam("role") int role) {
-        if (role >= 0) {
+    public List<Star> getStarRank(@QueryParam("role") int role, @QueryParam("area") int area) {
+        if (role >= 0 && area >= 0) {
             List<Star> starRank;
-            if (role == 0) {
-                starRank = this._starFacade.getRankStar();
+            if (area == 0) {
+                if (role == 0) {
+                    starRank = this._starFacade.getRankStar();
+                } else {
+                    starRank = this._starFacade.getRankStarByRole(role);
+                }
             } else {
-                starRank = this._starFacade.getRankStar(role);
+                String areaStr;
+                switch (area) {
+                    case 1:
+                        areaStr = "中国";
+                        break;
+                    case 2:
+                        areaStr = "美国";
+                        break;
+                    case 3:
+                        areaStr = "中国香港";
+                        break;
+                    case 4:
+                        areaStr = "中国台湾";
+                        break;
+                    default:
+                        areaStr = "中国";
+                        break;
+                }
+                if (role == 0) {
+                    starRank = this._starFacade.getRankStarByCountry(areaStr);
+                } else {
+                    starRank = this._starFacade.getRankStarByRoleAndCountry(role, areaStr);
+                }
             }
             for (Star s : starRank) {
                 s.setDescription("");
