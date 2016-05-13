@@ -11,6 +11,7 @@ import com.weiresearch.film.facade.impl.EnStarFacade;
 import com.weiresearch.film.facade.impl.EnStarWorkFacade;
 import com.weiresearch.film.model.StarImpactModel;
 import com.weiresearch.film.pojo.StarYearRoleBoxPojo;
+import com.weiresearch.film.util.DecimalTool;
 import com.weiresearch.film.util.MovieConst;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -127,8 +128,11 @@ public class StarRest {
                     starRank = this._starFacade.getRankStarByRoleAndCountry(role, areaStr);
                 }
             }
+            
+            
             for (Star s : starRank) {
                 s.setDescription("");
+                s.setImpactIndex(DecimalTool.format(s.getImpactIndex()));
             }
             return starRank;
         }

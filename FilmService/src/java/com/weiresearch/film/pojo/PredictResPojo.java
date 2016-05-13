@@ -5,6 +5,7 @@
  */
 package com.weiresearch.film.pojo;
 
+import com.weiresearch.film.util.DecimalTool;
 import java.text.DecimalFormat;
 
 /**
@@ -29,10 +30,8 @@ public class PredictResPojo {
 
     public void setPredictInfo(EnMoviePojo predictInfo) {
         this.predictInfo = predictInfo;
-        double dirIndex = Double.valueOf(df.format(predictInfo.getVideoChiefIndex()[0]));
-        double starIndex = Double.valueOf(df.format(predictInfo.getVideoChiefIndex()[1]));
-        predictInfo.setVideoChiefIndex(0, dirIndex);
-        predictInfo.setVideoChiefIndex(1, starIndex);
+        predictInfo.setVideoChiefIndex(0, DecimalTool.format(predictInfo.getVideoChiefIndex()[0]));
+        predictInfo.setVideoChiefIndex(1, DecimalTool.format(predictInfo.getVideoChiefIndex()[1]));
     }
 
     public PredictRes getPredictRes() {
