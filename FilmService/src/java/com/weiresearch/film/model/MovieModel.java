@@ -489,8 +489,8 @@ public class MovieModel {
 //                "E:/Workspaces/NetBeansProject/Film/data/en_filter_20160506_2.csv");
 
         // 2016-05-09输出模型，考虑ip，系列电影，预告片
-        model.computeEnMovie("E:/Workspaces/NetBeansProject/Film/data/movie_trailer_train_20160509_02.csv",
-                "E:/Workspaces/NetBeansProject/Film/data/en_filter_20160509_04.csv");
+        model.computeEnMovie("E:/Workspaces/NetBeansProject/Film/data/movie_trailer_train_20160516.csv",
+                "E:/Workspaces/NetBeansProject/Film/data/en_filter_20160516.csv");
     }
 
 }

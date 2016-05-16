@@ -57,8 +57,8 @@ public class PredictResPojo {
     public class PredictRes {
 
         private int j48Res;
-        private int bayesRes;
-        private int smoRes;
+        private int randomForestRes;
+        private int logisticRes;
         private int maxRes;
 
         public int getJ48Res() {
@@ -69,37 +69,37 @@ public class PredictResPojo {
             this.j48Res = j48Res;
         }
 
-        public int getBayesRes() {
-            return bayesRes;
+        public int getRandomForestRes() {
+            return randomForestRes;
         }
 
-        public void setBayesRes(int bayesRes) {
-            this.bayesRes = bayesRes;
+        public void setRandomForestRes(int randomForestRes) {
+            this.randomForestRes = randomForestRes;
         }
 
-        public int getSmoRes() {
-            return smoRes;
+        public int getLogisticRes() {
+            return logisticRes;
         }
 
-        public void setSmoRes(int smoRes) {
-            this.smoRes = smoRes;
+        public void setLogisticRes(int logisticRes) {
+            this.logisticRes = logisticRes;
         }
 
         public void computeMaxRes() {
-//            this.maxRes = Math.max(Math.max(j48Res, bayesRes), smoRes);
+//            this.maxRes = Math.max(Math.max(j48Res, randomForestRes), logisticRes);
             int[] predicts = new int[5];
             if (j48Res > 0) {
                 predicts[j48Res]++;
             }
-            if (smoRes > 0) {
-                predicts[smoRes]++;
+            if (logisticRes > 0) {
+                predicts[logisticRes]++;
             }
-            if (bayesRes > 0) {
-                predicts[bayesRes]++;
+            if (randomForestRes > 0) {
+                predicts[randomForestRes]++;
             }
 
-            int res = 0;
-            for (int i = 1; i < predicts.length; i++) {
+            int res = predicts.length - 1;
+            for (int i = predicts.length - 2; i >= 0; i--) {
                 if (predicts[i] > predicts[res]) {
                     res = i;
                 }

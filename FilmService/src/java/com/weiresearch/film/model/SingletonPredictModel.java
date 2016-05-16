@@ -24,18 +24,18 @@ public class SingletonPredictModel {
     private static SingletonPredictModel model = null;
 
     private final BoxPredictModel j48Model;
-    private final BoxPredictModel bayesModel;
-    private final BoxPredictModel smoModel;
+    private final BoxPredictModel randomForestModel;
+    private final BoxPredictModel logisticModel;
     private Instances schemaData;
 
     private SingletonPredictModel() {
         j48Model = new BoxPredictModel();
-        bayesModel = new BoxPredictModel();
-        smoModel = new BoxPredictModel();
+        randomForestModel = new BoxPredictModel();
+        logisticModel = new BoxPredictModel();
 
         j48Model.readModel(PropertiesLoader.getInstance().getProp().getProperty("j48.cls.path"));
-        bayesModel.readModel(PropertiesLoader.getInstance().getProp().getProperty("bayes.cls.path"));
-        smoModel.readModel(PropertiesLoader.getInstance().getProp().getProperty("smo.cls.path"));
+        randomForestModel.readModel(PropertiesLoader.getInstance().getProp().getProperty("randomforest.cls.path"));
+        logisticModel.readModel(PropertiesLoader.getInstance().getProp().getProperty("logistic.cls.path"));
     }
 
     public static final SingletonPredictModel getInstance() {
@@ -54,12 +54,12 @@ public class SingletonPredictModel {
         return j48Model;
     }
 
-    public BoxPredictModel getBayesModel() {
-        return bayesModel;
+    public BoxPredictModel getRandomForestModel() {
+        return randomForestModel;
     }
 
-    public BoxPredictModel getSmoModel() {
-        return smoModel;
+    public BoxPredictModel getLogisticModel() {
+        return logisticModel;
     }
 
     /**
@@ -101,8 +101,8 @@ public class SingletonPredictModel {
         Instances predictDatas = new Instances(schemaData);
         predictDatas.add(predictData);
         predictResPojo.getPredictRes().setJ48Res(this.j48Model.predict(predictDatas.lastInstance()));
-        predictResPojo.getPredictRes().setBayesRes(this.bayesModel.predict(predictDatas.lastInstance()));
-        predictResPojo.getPredictRes().setSmoRes(this.smoModel.predict(predictDatas.lastInstance()));
+        predictResPojo.getPredictRes().setRandomForestRes(this.randomForestModel.predict(predictDatas.lastInstance()));
+        predictResPojo.getPredictRes().setLogisticRes(this.logisticModel.predict(predictDatas.lastInstance()));
         predictResPojo.getPredictRes().computeMaxRes();
         predictResPojo.setErrorCode(0);
         predictResPojo.setMsg("success");
