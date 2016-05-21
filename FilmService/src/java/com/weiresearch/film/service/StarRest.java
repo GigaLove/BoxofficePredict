@@ -76,6 +76,36 @@ public class StarRest {
             return impactIndex;
         }
     }
+    
+    @GET
+    @Path("/index")
+    @Produces({MediaType.TEXT_PLAIN})
+    public double getStarImpactIndex(@QueryParam("name") String starName) {
+        Star starInfo = _starFacade.findByName(starName);
+        if (starInfo == null) {
+            return -1;
+        } else {
+            Double impactIndex = starInfo.getImpactIndex();
+            if (impactIndex == null) {
+                int maxYear = Calendar.getInstance().get(Calendar.YEAR) - 1;
+                int minYear = maxYear - MovieConst.YEAR_SPAN + 1;
+
+                List<Object[]> starWorks = _starWorkFacade.getStarWorkByReleaseYear(starInfo.getId(), minYear, maxYear);
+                List<StarYearRoleBoxPojo> yearRoleBoxs = new ArrayList<>();
+                for (Object[] attrs : starWorks) {
+                    int role = (int) attrs[1];
+                    int releaseYear = (int) attrs[2];
+                    int workCount = (int) (long) attrs[3];
+                    int boxoffice = ((BigDecimal) attrs[4]).intValue();
+                    yearRoleBoxs.add(new StarYearRoleBoxPojo(starInfo.getId(), role, releaseYear, workCount, boxoffice));
+                }
+                impactIndex = StarImpactModel.computeIndexByWorkMatrix(yearRoleBoxs, minYear);
+                starInfo.setImpactIndex(impactIndex);
+                _starFacade.edit(starInfo);
+            }
+            return impactIndex;
+        }
+    }
 
     @GET
     @Path("/work")

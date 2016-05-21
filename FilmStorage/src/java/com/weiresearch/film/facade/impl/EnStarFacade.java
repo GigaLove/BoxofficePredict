@@ -34,6 +34,21 @@ public class EnStarFacade extends AbstractFacade<Star> {
         return em;
     }
     
+    public Star findByName(String name) {
+        Query query = this.getEntityManager().createNamedQuery("Star.findByName");
+        query.setParameter("name", name);
+        query.setHint("eclipselink.refresh", "True");
+        try {
+            List<Star> stars = (List<Star>) query.getResultList();
+            if (!stars.isEmpty()) {
+                return stars.get(0);
+            }
+        } catch (Exception e) {
+            Logger.getLogger(EnStarWorkFacade.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return null;
+    }
+    
     public List<Star> getRankStar() {
         Query query = this.getEntityManager().createQuery("select s from Star s "
                 + "where s.impactIndex is not null order by s.impactIndex desc");
