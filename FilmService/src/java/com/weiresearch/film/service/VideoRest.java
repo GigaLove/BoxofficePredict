@@ -64,4 +64,29 @@ public class VideoRest {
         }
         return new Gson().toJson(resPojo);
     }
+    
+    @GET
+    @Path("/predict/{id}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public String getPredictBoxofficeById(@PathParam("id") Integer videoId) {
+        PredictResPojo resPojo = new PredictResPojo();
+
+        Video video = this._videoFacade.find(videoId);
+        if (video == null) {
+            resPojo.setErrorCode(1);
+            resPojo.setMsg("Invalid video id");
+        } else {
+            List<Object[]> predictInfo = this._videoFacade.findVideoPredictInfo(videoId);
+            EnMoviePojo enMoviePojo;
+            if (predictInfo != null && !predictInfo.isEmpty()
+                    && (enMoviePojo = MovieModel.convertData(predictInfo)) != null) {
+                SingletonPredictModel.getInstance().predict(enMoviePojo, resPojo);
+                resPojo.setPredictInfo(enMoviePojo);
+            } else {
+                resPojo.setErrorCode(2);
+                resPojo.setMsg("Can't find correspond star info");
+            }
+        }
+        return new Gson().toJson(resPojo);
+    }
 }
