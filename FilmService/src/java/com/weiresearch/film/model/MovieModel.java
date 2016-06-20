@@ -94,7 +94,7 @@ public class MovieModel {
 //                                Long.parseLong(values[12])));
                         movie.setStarTwoId(Long.parseLong(values[12]));
                         movie.setStarTwoBoxIndex(this.starModel.getImpacIndex(Long.parseLong(values[12])));
-                        movie.setBoxClass(filterBoxoffice2(values[14]));
+                        movie.setBoxClass(filterBoxByFourClass(values[14]));
                         movieMap.put(movieId, movie);
                         System.out.println(movie);
                     }
@@ -146,7 +146,7 @@ public class MovieModel {
                                 movie.setMarketCount(Integer.parseInt(values[8]));
                                 movie.setAvgTrailerView(filterTrailerView(values[9]));
                                 movie.setMaxTrailerView(filterTrailerView(values[10]));
-                                movie.setBoxClass(filterBoxoffice3(values[11]));
+                                movie.setBoxClass(filterBoxByFourClass(values[11]));
                                 movieMap.put(movieId, movie);
                             }
                             movie = movieMap.get(movieId);
@@ -212,6 +212,10 @@ public class MovieModel {
                 pw.println("id,type,country,releaseYear,period,"
                         + "is3D,isIMAX,isIp,isSeries,marketCount,directorIndex,actorIndex,avgTrailerView,maxTrailerView,boxClass");
                 for (Map.Entry<Long, EnMoviePojo> entry : movieMap.entrySet()) {
+//                    if (entry.getValue().getVideoChiefIndex()[0] == 0 || 
+//                            entry.getValue().getVideoChiefIndex()[1] == 0) {
+//                        continue;
+//                    }
                     pw.println(entry.getValue());
                 }
                 pw.flush();
@@ -461,11 +465,44 @@ public class MovieModel {
         }
     }
 
-    public static int filterBoxoffice3(String box) {
+    public static int filterBoxByFiveClass(String box) {
         double boxoffice = Double.parseDouble(box);
         if (boxoffice > 100000) {
             return 4;
         } else if (boxoffice > 10000) {
+            return 3;
+        } else if (boxoffice > 1000) {
+            return 2;
+        } else if (boxoffice > 100) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    
+    public static int filterBoxByTwoClass(String box) {
+        double boxoffice = Double.parseDouble(box);
+        if (boxoffice > 10000) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    
+    public static int filterBoxByThreeClass(String box) {
+        double boxoffice = Double.parseDouble(box);
+        if (boxoffice > 10000) {
+            return 2;
+        } else if (boxoffice > 1000) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    
+    public static int filterBoxByFourClass(String box) {
+        double boxoffice = Double.parseDouble(box);
+        if (boxoffice > 10000) {
             return 3;
         } else if (boxoffice > 1000) {
             return 2;
@@ -490,7 +527,7 @@ public class MovieModel {
 
         // 2016-05-09输出模型，考虑ip，系列电影，预告片
         model.computeEnMovie("E:/Workspaces/NetBeansProject/Film/data/movie_trailer_train_20160516.csv",
-                "E:/Workspaces/NetBeansProject/Film/data/en_filter_20160516.csv");
+                "E:/Workspaces/NetBeansProject/Film/data/class4_20160620.csv");
     }
 
 }

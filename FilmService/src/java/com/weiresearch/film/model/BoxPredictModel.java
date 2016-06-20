@@ -472,7 +472,7 @@ public class BoxPredictModel {
 
     public static void main(String[] args) {
         BoxPredictModel mModel = new BoxPredictModel();
-//        mModel.convertCsv2Arff("data/train_data_4_2016.csv",
+//        mModel.convertCsv2Arff("data/en_filter_20160620.csv",
 //                "data/train_4.arff");
 //        mModel.convertCsv2Arff("data/test_data_4.csv",
 //                "data/test_4.arff");
@@ -485,10 +485,10 @@ public class BoxPredictModel {
 //        mModel.trainModelByJ48();
 //        mModel.j48ParaSelect();
 //        mModel.evaluateByTestData();
-//        mModel.convertCsv2Arff2("E:/Workspaces/NetBeansProject/Film/data/en_filter_20160516.csv",
-//                "E:/Workspaces/NetBeansProject/Film/data/en_filter_train5_20160516.arff");
-        mModel.run("E:/Workspaces/NetBeansProject/Film/data/en_filter_train5_20160516.arff",
-                "E:/Workspaces/NetBeansProject/Film/data/j48_cls_0516.model");
+        mModel.convertCsv2Arff2("E:/Workspaces/NetBeansProject/Film/data/class4_20160620.csv",
+                "E:/Workspaces/NetBeansProject/Film/data/class4_train_20160620.arff");
+//        mModel.run("E:/Workspaces/NetBeansProject/Film/data/en_filter_train5_20160516.arff",
+//                "E:/Workspaces/NetBeansProject/Film/data/j48_cls_0516.model");
 //        mModel.serializeDataSchema("E:/Workspaces/NetBeansProject/Film/data/data.model");
     }
 }
